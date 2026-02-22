@@ -1,88 +1,129 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pincket: Cloud Collection</title>
+    <title>Pincket: Cloud & Synth Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
         body { font-family: 'Nunito', sans-serif; margin: 0; background: #100b20; color: white; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar & Layout */
         #sidebar { width: 260px; background: #231245; border-right: 5px solid #ff007f; padding: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
-        .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; }
-        #avatar-display { width: 90px; height: 90px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,0.1); margin-bottom: 10px; }
-        .stats { font-size: 22px; color: #ff007f; font-weight: 900; }
-        #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; }
-        .btn { padding: 12px 20px; font-size: 18px; cursor: pointer; color: #100b20; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
-        .btn-nav { background: #00d4ff; width: 100%; margin-bottom: 5px; }
-        .btn-answer { background: #ff007f; color: white; margin: 5px; width: 100%; }
-        .trivia-container { background: #231245; padding: 30px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 4px solid #00d4ff; }
-        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; align-items: center; justify-content: center; }
-        .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 300px; text-align: center; }
-        .auth-input { width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; }
+        #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); }
+        
+        /* Tabs */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: pop 0.3s ease; }
+        @keyframes pop { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Buttons & Market */
+        .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.2s; background: #00d4ff; color: #100b20; }
+        .btn:hover { transform: scale(1.05); background: #ff007f; color: white; }
+        .pack { background: #231245; border: 4px solid #ff007f; border-radius: 15px; padding: 20px; cursor: pointer; transition: 0.3s; display: inline-block; width: 150px; margin: 10px; }
+        
+        /* Auth Overlay */
+        #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: flex; align-items: center; justify-content: center; }
+        .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 320px; text-align: center; }
+        .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; }
         .hidden { display: none !important; }
-        /* Add more of your previous CSS styles here for packs/inventory */
     </style>
 </head>
 <body>
 
     <div id="auth-overlay">
         <div class="auth-box">
-            <h2 style="font-size: 30px; margin-bottom: 10px;">PINCKET</h2>
-            <p style="color: #666; margin-bottom: 20px;">Cloud Login</p>
+            <h1 style="font-weight:900;">PINCKET</h1>
             <input type="email" id="email" placeholder="Email" class="auth-input">
             <input type="password" id="password" placeholder="Password" class="auth-input">
-            <button class="btn btn-nav" onclick="handleAuth('login')">Login</button>
-            <button class="btn" style="background: #eee; width: 100%; margin-top: 5px;" onclick="handleAuth('signup')">Sign Up</button>
-            <p id="auth-error" style="color: red; font-size: 12px; mt: 10px;"></p>
+            <button class="btn" style="width:100%;" onclick="handleAuth('login')">Login</button>
+            <button class="btn" style="background:#eee; border:none; width:100%; margin-top:5px;" onclick="handleAuth('signup')">Sign Up</button>
+            <p id="auth-error" style="color:red; font-size:12px;"></p>
         </div>
     </div>
 
     <div id="sidebar">
-        <h1>PINCKET</h1>
         <div class="profile-card">
-            <img id="avatar-display" src="https://placehold.co/100/333/fff?text=?" alt="Avatar">
-            <div class="stats"><span id="tokenCount">0</span> 💰</div>
+            <div style="font-size: 40px;">👤</div>
+            <div style="font-size: 24px; color: #ff007f; font-weight: 900;"><span id="tokenCount">0</span> 💰</div>
         </div>
-        <button class="btn btn-nav" onclick="switchTab('play')">🎮 Play</button>
-        <button class="btn btn-nav" onclick="switchTab('market')">🛒 Market</button>
-        <button class="btn btn-nav" onclick="switchTab('inventory')">🎒 Inventory</button>
-        <button class="btn" style="background: #ff4757; color: white; font-size: 12px;" onclick="logout()">Logout</button>
+        <button class="btn" onclick="switchTab('home')">🏠 Home</button>
+        <button class="btn" onclick="switchTab('play')">🎮 Play</button>
+        <button class="btn" onclick="switchTab('market')">🛒 Market</button>
+        <button class="btn" onclick="switchTab('inventory')">🎒 Inventory</button>
+        <div style="flex-grow:1;"></div>
+        <button class="btn" style="background:#ff4757; border:none; color:white; font-size:10px;" onclick="logout()">Logout</button>
     </div>
 
     <div id="main-content">
-        <div id="playTab">
-            <h2>Sneaky Learning Trivia</h2>
-            <div class="trivia-container">
-                <div id="question-text" style="font-size: 24px; margin-bottom: 20px;">Loading...</div>
-                <div class="answers-grid" id="answers-grid"></div>
-                <div id="trivia-feedback" style="margin-top: 20px; font-weight: 900;"></div>
+        <div id="homeTab" class="tab-content active">
+            <h1 style="font-size:60px;">Welcome Home!</h1>
+            <p>Ready to build your collection?</p>
+            <button class="btn" style="padding: 20px 40px;" onclick="switchTab('play')">Start Earning</button>
+        </div>
+
+        <div id="playTab" class="tab-content">
+            <div style="background:#231245; padding:40px; border-radius:20px; border:4px solid #00d4ff; max-width:500px; margin:auto;">
+                <h2 id="question-text" style="font-size:28px;">Loading...</h2>
+                <div id="answers-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
             </div>
         </div>
+
+        <div id="marketTab" class="tab-content">
+            <h2>Market (100 💰 per pack)</h2>
+            <div class="pack" onclick="buyPack('Anime')"><h3>Anime</h3></div>
+            <div class="pack" onclick="buyPack('Nintendo')"><h3>Nintendo</h3></div>
         </div>
+
+        <div id="inventoryTab" class="tab-content">
+            <h2>Your Collection</h2>
+            <div id="inventory-list"></div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // YOUR CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyD3BQO2283K_FSIsu-oaxEAEH5lutv5AuA",
             authDomain: "pincket-database.firebaseapp.com",
             projectId: "pincket-database",
             storageBucket: "pincket-database.firebasestorage.app",
             messagingSenderId: "944436346969",
-            appId: "1:944436346969:web:307b797544b451bec27148",
-            measurementId: "G-FT0XZRL667"
+            appId: "1:944436346969:web:307b797544b451bec27148"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        let userData = { tokens: 0, inventory: [] };
 
-        let userData = { tokens: 0, inventory: {}, equippedAvatar: "" };
+        // --- THE SOUND SYNTH TOOL ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playNote(freq, type, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
 
-        // AUTH HANDLER
+        const sounds = {
+            correct: () => { playNote(523, 'square', 0.1); setTimeout(() => playNote(659, 'square', 0.2), 100); },
+            wrong: () => { playNote(220, 'sawtooth', 0.1); setTimeout(() => playNote(110, 'sawtooth', 0.3), 100); },
+            click: () => playNote(440, 'sine', 0.05),
+            pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); }
+        };
+
+        // --- CLOUD LOGIC ---
         window.handleAuth = async (type) => {
+            sounds.click();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             try {
@@ -95,7 +136,7 @@
             } catch (err) { document.getElementById('auth-error').innerText = err.message; }
         };
 
-        window.logout = () => signOut(auth);
+        window.logout = () => { sounds.click(); signOut(auth); };
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -109,53 +150,60 @@
             }
         });
 
-        // TRIVIA DATA
+        // --- GAME LOGIC ---
         const trivia = [
-            { q: "What is 7 x 8?", a: ["54", "56", "64", "48"], c: "56" },
-            { q: "Who was the first US President?", a: ["Lincoln", "Washington", "Jefferson", "Adams"], c: "Washington" },
-            { q: "Which planet is the Red Planet?", a: ["Venus", "Mars", "Saturn", "Jupiter"], c: "Mars" }
+            { q: "8 x 8?", a: ["64", "56", "72", "48"], c: "64" },
+            { q: "Planet after Earth?", a: ["Venus", "Mars", "Jupiter", "Saturn"], c: "Mars" }
         ];
 
         function loadQuestion() {
-            const qObj = trivia[Math.floor(Math.random() * trivia.length)];
-            document.getElementById('question-text').innerText = qObj.q;
+            const q = trivia[Math.floor(Math.random() * trivia.length)];
+            document.getElementById('question-text').innerText = q.q;
             const grid = document.getElementById('answers-grid');
             grid.innerHTML = "";
-            qObj.a.forEach(ans => {
+            q.a.forEach(ans => {
                 const b = document.createElement('button');
-                b.className = "btn btn-answer";
+                b.className = "btn";
                 b.innerText = ans;
-                b.onclick = () => checkAns(ans, qObj.c);
+                b.onclick = () => {
+                    if(ans === q.c) { 
+                        userData.tokens += 10; sounds.correct(); 
+                    } else { 
+                        sounds.wrong(); 
+                    }
+                    saveAndRefresh();
+                    loadQuestion();
+                };
                 grid.appendChild(b);
             });
         }
 
-        async function checkAns(ans, correct) {
-            const feedback = document.getElementById('trivia-feedback');
-            if (ans === correct) {
-                userData.tokens += 100;
-                feedback.innerText = "Correct! +100 💰";
-                feedback.style.color = "#00d4ff";
-            } else {
-                feedback.innerText = "Wrong! Next question...";
-                feedback.style.color = "#ff4757";
-            }
-            await updateDoc(doc(db, "users", auth.currentUser.uid), { tokens: userData.tokens });
+        window.buyPack = (type) => {
+            if(userData.tokens >= 100) {
+                userData.tokens -= 100;
+                sounds.pack();
+                const item = type === 'Anime' ? "Goku" : "Mario";
+                userData.inventory.push(item);
+                saveAndRefresh();
+                alert("You got: " + item);
+            } else { sounds.wrong(); }
+        };
+
+        async function saveAndRefresh() {
+            if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), userData);
             updateUI();
-            setTimeout(() => { feedback.innerText = ""; loadQuestion(); }, 1500);
         }
 
         function updateUI() {
             document.getElementById('tokenCount').innerText = userData.tokens;
-            document.getElementById('avatar-display').src = userData.equippedAvatar || "https://placehold.co/100/333/fff?text=?";
+            document.getElementById('inventory-list').innerText = userData.inventory.join(', ');
         }
 
-        window.switchTab = (tab) => {
-            document.getElementById('playTab').classList.add('hidden');
-            // Logic for other tabs...
-            if(tab === 'play') document.getElementById('playTab').classList.remove('hidden');
+        window.switchTab = (t) => {
+            sounds.click();
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(t + 'Tab').classList.add('active');
         };
-
     </script>
 </body>
 </html>
