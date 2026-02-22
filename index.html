@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pincket: Cloud & Synth Edition</title>
+    <title>Pincket</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
         body { font-family: 'Nunito', sans-serif; margin: 0; background: #100b20; color: white; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Sidebar & Layout */
         #sidebar { width: 260px; background: #231245; border-right: 5px solid #ff007f; padding: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
-        .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; }
+        .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 4px 4px 0px #00d4ff; }
+        
         #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); }
-        
-        /* Tabs */
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: pop 0.3s ease; }
-        @keyframes pop { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .tab-content.active { display: block; }
 
-        /* Buttons & Market */
-        .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.2s; background: #00d4ff; color: #100b20; }
-        .btn:hover { transform: scale(1.05); background: #ff007f; color: white; }
-        .pack { background: #231245; border: 4px solid #ff007f; border-radius: 15px; padding: 20px; cursor: pointer; transition: 0.3s; display: inline-block; width: 150px; margin: 10px; }
+        .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.1s; background: #00d4ff; color: #100b20; box-shadow: 0px 4px 0px #0097b2; position: relative; top: 0; }
+        .btn:active { top: 4px; box-shadow: 0px 0px 0px transparent; }
+        .btn-nav { width: 100%; margin-bottom: 5px; }
+        .btn-answer { background: #ff007f; color: white; width: 100%; box-shadow: 0px 4px 0px #c20062; }
         
-        /* Auth Overlay */
+        .trivia-container { background: #231245; padding: 30px; border-radius: 20px; max-width: 500px; margin: 0 auto; border: 4px solid #00d4ff; box-shadow: 6px 6px 0px #ff007f; }
+        .pack { background: #231245; border: 4px solid #ff007f; border-radius: 15px; padding: 20px; cursor: pointer; transition: 0.3s; display: inline-block; width: 140px; margin: 10px; }
+
         #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 320px; text-align: center; }
         .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; }
@@ -32,12 +31,12 @@
 
     <div id="auth-overlay">
         <div class="auth-box">
-            <h1 style="font-weight:900;">PINCKET</h1>
+            <h1 style="font-weight:900; color:#ff007f;">PINCKET</h1>
             <input type="email" id="email" placeholder="Email" class="auth-input">
             <input type="password" id="password" placeholder="Password" class="auth-input">
-            <button class="btn" style="width:100%;" onclick="handleAuth('login')">Login</button>
-            <button class="btn" style="background:#eee; border:none; width:100%; margin-top:5px;" onclick="handleAuth('signup')">Sign Up</button>
-            <p id="auth-error" style="color:red; font-size:12px;"></p>
+            <button class="btn btn-nav" onclick="handleAuth('login')">Login</button>
+            <button class="btn" style="background:#eee; border:none; width:100%; margin-top:5px; box-shadow:none;" onclick="handleAuth('signup')">Create Account</button>
+            <p id="auth-error" style="color:red; font-size:12px; margin-top:10px;"></p>
         </div>
     </div>
 
@@ -46,37 +45,38 @@
             <div style="font-size: 40px;">👤</div>
             <div style="font-size: 24px; color: #ff007f; font-weight: 900;"><span id="tokenCount">0</span> 💰</div>
         </div>
-        <button class="btn" onclick="switchTab('home')">🏠 Home</button>
-        <button class="btn" onclick="switchTab('play')">🎮 Play</button>
-        <button class="btn" onclick="switchTab('market')">🛒 Market</button>
-        <button class="btn" onclick="switchTab('inventory')">🎒 Inventory</button>
+        <button class="btn btn-nav" onclick="switchTab('home')">🏠 Home</button>
+        <button class="btn btn-nav" onclick="switchTab('play')">🎮 Play Trivia</button>
+        <button class="btn btn-nav" onclick="switchTab('market')">🛒 Pack Market</button>
+        <button class="btn btn-nav" onclick="switchTab('inventory')">🎒 My Cards</button>
         <div style="flex-grow:1;"></div>
-        <button class="btn" style="background:#ff4757; border:none; color:white; font-size:10px;" onclick="logout()">Logout</button>
+        <button class="btn" style="background:#ff4757; border:none; color:white; font-size:10px; box-shadow:none;" onclick="logout()">Logout</button>
     </div>
 
     <div id="main-content">
         <div id="homeTab" class="tab-content active">
-            <h1 style="font-size:60px;">Welcome Home!</h1>
-            <p>Ready to build your collection?</p>
-            <button class="btn" style="padding: 20px 40px;" onclick="switchTab('play')">Start Earning</button>
+            <h1 style="font-size:60px; text-shadow: 4px 4px #ff007f;">Welcome Back!</h1>
+            <p style="font-size:22px; opacity:0.8; margin-bottom:40px;">Ready to earn more tokens and rare cards?</p>
+            <button class="btn" style="padding: 25px 60px; font-size: 24px;" onclick="switchTab('play')">Start Playing</button>
         </div>
 
         <div id="playTab" class="tab-content">
-            <div style="background:#231245; padding:40px; border-radius:20px; border:4px solid #00d4ff; max-width:500px; margin:auto;">
-                <h2 id="question-text" style="font-size:28px;">Loading...</h2>
-                <div id="answers-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+            <div class="trivia-container">
+                <div id="question-text" style="font-size:26px; font-weight:900; margin-bottom:20px;">Question goes here...</div>
+                <div id="answers-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
+                <div id="trivia-feedback" style="margin-top:20px; font-weight:900; min-height:24px;"></div>
             </div>
         </div>
 
         <div id="marketTab" class="tab-content">
-            <h2>Market (100 💰 per pack)</h2>
-            <div class="pack" onclick="buyPack('Anime')"><h3>Anime</h3></div>
-            <div class="pack" onclick="buyPack('Nintendo')"><h3>Nintendo</h3></div>
+            <h2 style="font-size:32px;">The Market (100 💰)</h2>
+            <div class="pack" onclick="buyPack('Anime')"><div style="font-size:40px;">🔥</div><h3>Anime</h3></div>
+            <div class="pack" onclick="buyPack('Nintendo')"><div style="font-size:40px;">🍄</div><h3>Nintendo</h3></div>
         </div>
 
         <div id="inventoryTab" class="tab-content">
-            <h2>Your Collection</h2>
-            <div id="inventory-list"></div>
+            <h2 style="font-size:32px;">Collection</h2>
+            <div id="inventory-list" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;"></div>
         </div>
     </div>
 
@@ -99,19 +99,18 @@
         const db = getFirestore(app);
         let userData = { tokens: 0, inventory: [] };
 
-        // --- THE SOUND SYNTH TOOL ---
+        // --- SYNTH AUDIO ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playNote(freq, type, duration) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = type;
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
         }
 
         const sounds = {
@@ -121,7 +120,7 @@
             pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); }
         };
 
-        // --- CLOUD LOGIC ---
+        // --- CLOUD & AUTH ---
         window.handleAuth = async (type) => {
             sounds.click();
             const email = document.getElementById('email').value;
@@ -138,22 +137,31 @@
 
         window.logout = () => { sounds.click(); signOut(auth); };
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('auth-overlay').classList.add('hidden');
-                const docSnap = await getDoc(doc(db, "users", user.uid));
-                if (docSnap.exists()) userData = docSnap.data();
-                updateUI();
-                loadQuestion();
-            } else {
-                document.getElementById('auth-overlay').classList.remove('hidden');
-            }
-        });
+        window.switchTab = (t) => {
+            sounds.click();
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(t + 'Tab').classList.add('active');
+            if (t === 'play') loadQuestion(); // Only load question when they click PLAY
+        };
 
-        // --- GAME LOGIC ---
+        window.buyPack = async (type) => {
+            if(userData.tokens >= 100) {
+                userData.tokens -= 100;
+                sounds.pack();
+                const pool = type === 'Anime' ? ["Goku", "Vegeta", "Naruto"] : ["Mario", "Kirby", "Link"];
+                const pull = pool[Math.floor(Math.random() * pool.length)];
+                userData.inventory.push(pull);
+                alert("Pulled: " + pull);
+                await saveToCloud();
+                updateUI();
+            } else { sounds.wrong(); alert("Not enough tokens!"); }
+        };
+
+        // --- TRIVIA SYSTEM ---
         const trivia = [
-            { q: "8 x 8?", a: ["64", "56", "72", "48"], c: "64" },
-            { q: "Planet after Earth?", a: ["Venus", "Mars", "Jupiter", "Saturn"], c: "Mars" }
+            { q: "What is 9 x 9?", a: ["81", "71", "91", "89"], c: "81" },
+            { q: "Capital of France?", a: ["London", "Paris", "Berlin", "Rome"], c: "Paris" },
+            { q: "How many legs does a spider have?", a: ["6", "8", "10", "12"], c: "8" }
         ];
 
         function loadQuestion() {
@@ -163,47 +171,43 @@
             grid.innerHTML = "";
             q.a.forEach(ans => {
                 const b = document.createElement('button');
-                b.className = "btn";
+                b.className = "btn btn-answer";
                 b.innerText = ans;
                 b.onclick = () => {
-                    if(ans === q.c) { 
-                        userData.tokens += 10; sounds.correct(); 
-                    } else { 
-                        sounds.wrong(); 
+                    if(ans === q.c) {
+                        userData.tokens += 100; sounds.correct();
+                        document.getElementById('trivia-feedback').innerText = "CORRECT! +100";
+                    } else {
+                        sounds.wrong();
+                        document.getElementById('trivia-feedback').innerText = "WRONG! Try another.";
                     }
-                    saveAndRefresh();
-                    loadQuestion();
+                    saveToCloud(); updateUI();
+                    setTimeout(() => { document.getElementById('trivia-feedback').innerText = ""; loadQuestion(); }, 1200);
                 };
                 grid.appendChild(b);
             });
         }
 
-        window.buyPack = (type) => {
-            if(userData.tokens >= 100) {
-                userData.tokens -= 100;
-                sounds.pack();
-                const item = type === 'Anime' ? "Goku" : "Mario";
-                userData.inventory.push(item);
-                saveAndRefresh();
-                alert("You got: " + item);
-            } else { sounds.wrong(); }
-        };
-
-        async function saveAndRefresh() {
+        async function saveToCloud() {
             if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), userData);
-            updateUI();
         }
 
         function updateUI() {
             document.getElementById('tokenCount').innerText = userData.tokens;
-            document.getElementById('inventory-list').innerText = userData.inventory.join(', ');
+            document.getElementById('inventory-list').innerHTML = userData.inventory.map(i => `<div class="pack" style="width:80px; padding:5px; border-width:2px;"><p style="font-size:10px;">${i}</p></div>`).join('');
         }
 
-        window.switchTab = (t) => {
-            sounds.click();
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById(t + 'Tab').classList.add('active');
-        };
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('auth-overlay').classList.add('hidden');
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if (docSnap.exists()) userData = docSnap.data();
+                updateUI();
+                // NO loadQuestion() here! We wait for them to click Play.
+            } else {
+                document.getElementById('auth-overlay').classList.remove('hidden');
+            }
+        });
     </script>
 </body>
 </html>
