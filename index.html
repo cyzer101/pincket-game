@@ -6,18 +6,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
         body { font-family: 'Nunito', sans-serif; margin: 0; background: #100b20; color: white; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Layout & Sidebar */
         #sidebar { width: 260px; background: #231245; border-right: 5px solid #ff007f; padding: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
-        .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 4px 4px 0px #00d4ff; }
-        #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); }
+        .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 4px 4px 0px #00d4ff; display: flex; flex-direction: column; align-items: center; }
+        #profile-avatar { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid #ff007f; background: #fff; margin-bottom: 10px; }
         
-        /* Tabs */
+        #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: pop 0.2s ease-out; }
         @keyframes pop { 0% { transform: scale(0.98); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* Buttons & UI */
-        .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.1s; background: #00d4ff; color: #100b20; box-shadow: 0px 4px 0px #0097b2; position: relative; outline: none; }
+        .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.1s; background: #00d4ff; color: #100b20; box-shadow: 0px 4px 0px #0097b2; outline: none; }
         .btn:active { top: 4px; box-shadow: 0px 0px 0px transparent; }
         .btn-nav { width: 100%; margin-bottom: 5px; }
         .btn-answer { background: #ff007f; color: white; width: 100%; box-shadow: 0px 4px 0px #c20062; margin-top: 10px; }
@@ -26,25 +24,22 @@
         .pack { background: #231245; border: 4px solid #ff007f; border-radius: 15px; padding: 20px; cursor: pointer; transition: 0.3s; display: inline-block; width: 140px; margin: 10px; }
         .pack:hover { transform: scale(1.05) rotate(2deg); }
 
-        /* --- 3D CARD REVEAL --- */
         #reveal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 200; display: none; align-items: center; justify-content: center; flex-direction: column; }
         .card-container { width: 260px; height: 360px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 20px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
         .card-front { background: linear-gradient(45deg, #ff007f, #00d4ff); }
         .card-front::after { content: "PINCKET"; font-size: 32px; font-weight: 900; color: white; text-shadow: 3px 3px 0px #100b20; }
         .card-back { background: #fff; color: #100b20; transform: rotateY(180deg); flex-direction: column; padding: 15px; box-sizing: border-box; }
         .card-img { width: 100%; height: 70%; object-fit: contain; border-radius: 10px; }
         .rarity-label { font-size: 14px; font-weight: 900; background: #100b20; color: white; padding: 4px 12px; border-radius: 12px; margin-top: 10px; }
 
-        /* --- COLLECTION GRID --- */
         .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding: 20px; }
         .inv-card { background: white; border-radius: 15px; padding: 10px; color: #100b20; display: flex; flex-direction: column; align-items: center; transition: 0.2s; border: 3px solid #fff; }
         .inv-card:hover { transform: translateY(-5px); }
         .inv-card img { width: 100%; height: 90px; object-fit: contain; }
 
-        /* Auth */
         #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 300; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 340px; text-align: center; }
         .hidden { display: none !important; }
@@ -81,7 +76,7 @@
 
     <div id="sidebar">
         <div class="profile-card">
-            <div style="font-size: 44px;">👤</div>
+            <img id="profile-avatar" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png">
             <div style="font-size: 28px; color: #ff007f; font-weight: 900;"><span id="tokenCount">0</span> 💰</div>
         </div>
         <button class="btn btn-nav" onclick="switchTab('home')">🏠 Home</button>
@@ -137,10 +132,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        let userData = { tokens: 0, inventory: [] };
+        let userData = { tokens: 0, inventory: [], avatarUrl: "" };
         let cloudTrivia = []; let cloudCards = []; 
 
-        // --- SYNTH SOUND ENGINE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playNote(freq, type, duration) {
             if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -156,17 +150,17 @@
             correct: () => { playNote(523.25, 'square', 0.1); setTimeout(() => playNote(659.25, 'square', 0.2), 100); },
             wrong: () => { playNote(220, 'sawtooth', 0.1); setTimeout(() => playNote(110, 'sawtooth', 0.3), 100); },
             pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); },
-            click: () => playNote(440, 'sine', 0.05)
+            click: () => playNote(440, 'sine', 0.05),
+            equip: () => { playNote(659, 'sine', 0.1); setTimeout(() => playNote(880, 'sine', 0.2), 100); }
         };
 
-        // --- AUTH & TABS ---
         window.handleAuth = async (type) => {
             sounds.click();
             const e = document.getElementById('email').value; const p = document.getElementById('password').value;
             try {
                 if (type === 'signup') {
                     const res = await createUserWithEmailAndPassword(auth, e, p);
-                    await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [] });
+                    await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [], avatarUrl: "" });
                 } else { await signInWithEmailAndPassword(auth, e, p); }
             } catch (err) { document.getElementById('auth-error').innerText = err.message; }
         };
@@ -178,7 +172,6 @@
             if (t === 'play') window.loadQuestion(); 
         };
 
-        // --- CLOUD FETCH ---
         async function fetchGameData() {
             try {
                 const qSnap = await getDocs(collection(db, "questions")); cloudTrivia = qSnap.docs.map(d => d.data());
@@ -186,7 +179,6 @@
             } catch(e) { console.error(e); }
         }
 
-        // --- PACKS & REVEAL ---
         window.buyPack = async (type) => {
             if(userData.tokens >= 100) {
                 userData.tokens -= 100; sounds.pack();
@@ -214,31 +206,34 @@
         window.flipCard = () => { document.getElementById('card-inner').classList.add('is-flipped'); document.getElementById('collect-btn').classList.remove('hidden'); playNote(880, 'sine', 0.2); };
         window.closeReveal = () => { document.getElementById('reveal-overlay').style.display = "none"; sounds.click(); };
 
-        // --- CORE LOGIC ---
+        window.setAvatar = async (url) => {
+            userData.avatarUrl = url;
+            sounds.equip();
+            await saveToCloud();
+            window.updateUI();
+        };
+
         async function saveToCloud() {
             if(auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true });
         }
 
-        // --- DYNAMIC UI & SORTER ---
         window.updateUI = () => {
             document.getElementById('tokenCount').innerText = userData.tokens;
             
+            if(userData.avatarUrl) {
+                document.getElementById('profile-avatar').src = userData.avatarUrl;
+            }
+
             const sortType = document.getElementById('sort-filter') ? document.getElementById('sort-filter').value : 'newest';
             let sortedInv = [...(userData.inventory || [])];
             
-            // Apply sorting rules
-            if (sortType === 'rarity-desc') {
-                sortedInv.sort((a, b) => b.rarity - a.rarity);
-            } else if (sortType === 'rarity-asc') {
-                sortedInv.sort((a, b) => a.rarity - b.rarity);
-            } else if (sortType === 'name') {
-                sortedInv.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            } else {
-                sortedInv.reverse(); // Newest first
-            }
+            if (sortType === 'rarity-desc') sortedInv.sort((a, b) => b.rarity - a.rarity);
+            else if (sortType === 'rarity-asc') sortedInv.sort((a, b) => a.rarity - b.rarity);
+            else if (sortType === 'name') sortedInv.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            else sortedInv.reverse();
 
             const rLabels = ["", "COMMON", "RARE", "ULTRA RARE"];
-            const rColors = ["", "#00d4ff", "#ffd700", "#ff007f"]; // 1=Cyan, 2=Gold, 3=Pink
+            const rColors = ["", "#00d4ff", "#ffd700", "#ff007f"];
 
             const invList = document.getElementById('inv-list');
             invList.innerHTML = sortedInv.map(card => {
@@ -248,7 +243,8 @@
                 <div class="inv-card" style="border-color: ${cColor}; box-shadow: 4px 4px 0px ${cColor};">
                     <img src="${card.imageUrl}">
                     <p style="margin:8px 0 0 0; font-size:15px; font-weight:900;">${card.name}</p>
-                    <span style="font-size:12px; color:${cColor}; font-weight:900; margin-top:4px;">${cLabel}</span>
+                    <span style="font-size:12px; color:${cColor}; font-weight:900; margin-top:4px; margin-bottom:8px;">${cLabel}</span>
+                    <button onclick="setAvatar('${card.imageUrl}')" style="font-size:11px; font-weight:bold; padding:6px 10px; cursor:pointer; background:#100b20; color:${cColor}; border:2px solid ${cColor}; border-radius:6px; width:100%; transition:0.2s;">Use as Avatar</button>
                 </div>
                 `;
             }).join('');
@@ -276,7 +272,11 @@
             if (user) {
                 document.getElementById('auth-overlay').classList.add('hidden');
                 const ds = await getDoc(doc(db, "users", user.uid));
-                if (ds.exists()) { userData = ds.data(); if (!Array.isArray(userData.inventory)) userData.inventory = []; }
+                if (ds.exists()) { 
+                    userData = ds.data(); 
+                    if (!Array.isArray(userData.inventory)) userData.inventory = []; 
+                    if (!userData.avatarUrl) userData.avatarUrl = ""; 
+                }
                 await fetchGameData(); window.updateUI();
             } else { document.getElementById('auth-overlay').classList.remove('hidden'); }
         });
