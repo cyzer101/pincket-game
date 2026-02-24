@@ -108,11 +108,6 @@
             <h2 style="font-size:32px;">The Market (100 💰)</h2>
             <div class="pack" onclick="buyPack('Anime')"><div style="font-size:40px;">🔥</div><h3>Anime</h3></div>
             <div class="pack" onclick="buyPack('Nintendo')"><div style="font-size:40px;">🍄</div><h3>Nintendo</h3></div>
-            
-            <div style="margin-top: 50px; border-top: 2px dashed #ff007f; padding-top: 20px;">
-                <p style="font-size: 14px; opacity: 0.7;">Dev Tools:</p>
-                <button class="btn" style="background: red; color: white; width: 100%;" onclick="forceUpload()">🔥 ADMIN: UPLOAD STARTER DATA</button>
-            </div>
         </div>
 
         <div id="inventoryTab" class="tab-content">
@@ -124,7 +119,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3BQO2283K_FSIsu-oaxEAEH5lutv5AuA",
@@ -143,7 +138,6 @@
         let cloudTrivia = []; 
         let cloudCards = []; 
 
-        // --- SYNTH SOUNDS ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playNote(freq, type, duration) {
             if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -163,7 +157,6 @@
             pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); }
         };
 
-        // --- AUTH ---
         window.handleAuth = async (type) => {
             sounds.click();
             const e = document.getElementById('email').value;
@@ -185,7 +178,6 @@
             if (t === 'play') window.loadQuestion(); 
         };
 
-        // --- FETCH CLOUD DATA ---
         async function fetchGameData() {
             try {
                 const qSnap = await getDocs(collection(db, "questions"));
@@ -196,7 +188,6 @@
             } catch(e) { console.log("Database fetch error:", e); }
         }
 
-        // --- RARITY & PACKS ---
         function getWeightedCard(packType) {
             const packPool = cloudCards.filter(c => c.packType === packType);
             if (packPool.length === 0) return { name: "Error: No Cards in DB", imageUrl: "", rarity: 1 };
@@ -220,7 +211,6 @@
                 if(!userData.inventory) userData.inventory = [];
                 userData.inventory.push(pulledCard);
 
-                // Setup the 3D Modal
                 document.getElementById('reveal-img').src = pulledCard.imageUrl || "";
                 document.getElementById('reveal-name').innerText = pulledCard.name;
                 
@@ -230,8 +220,6 @@
                 
                 document.getElementById('card-inner').classList.remove('is-flipped');
                 document.getElementById('collect-btn').classList.add('hidden');
-                
-                // Show it
                 document.getElementById('reveal-overlay').style.display = "flex";
 
                 await saveToCloud();
@@ -242,7 +230,6 @@
             }
         };
 
-        // --- 3D FLIP CONTROLS ---
         window.flipCard = () => {
             document.getElementById('card-inner').classList.add('is-flipped');
             document.getElementById('reveal-text').innerText = "NEW PULL!";
@@ -255,10 +242,9 @@
             sounds.click();
         };
 
-        // --- TRIVIA ENGINE ---
         window.loadQuestion = () => {
             if (cloudTrivia.length === 0) {
-                document.getElementById('question-text').innerText = "No questions in database yet! Go to the Market tab and click the red upload button.";
+                document.getElementById('question-text').innerText = "No questions loaded yet!";
                 return;
             }
             const q = cloudTrivia[Math.floor(Math.random() * cloudTrivia.length)];
@@ -290,8 +276,15 @@
             });
         };
 
+        // --- THE FIX: MERGE TRUE ---
         async function saveToCloud() {
-            if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), userData);
+            if(auth.currentUser) {
+                try {
+                    await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true });
+                } catch (err) {
+                    console.error("Failed to save:", err);
+                }
+            }
         }
 
         function updateUI() {
@@ -322,53 +315,6 @@
                 document.getElementById('auth-overlay').classList.remove('hidden');
             }
         });
-
-        // --- NUCLEAR UPLOAD SCRIPT ---
-        window.forceUpload = async () => {
-            alert("Starting upload... Click OK and wait a few seconds.");
-            
-            // Starter Questions
-            const questionDeck = [
-                { id: "q_math_1", q: "What is 8 x 7?", a: ["54", "56", "64", "48"], c: "56" },
-                { id: "q_math_2", q: "What is 12 x 5?", a: ["50", "60", "70", "55"], c: "60" },
-                { id: "q_math_3", q: "What is half of 150?", a: ["50", "75", "85", "100"], c: "75" },
-                { id: "q_sci_1", q: "Which planet is closest to the Sun?", a: ["Venus", "Mars", "Mercury", "Earth"], c: "Mercury" },
-                { id: "q_sci_2", q: "What gas do humans need to breathe to live?", a: ["Carbon Dioxide", "Nitrogen", "Oxygen", "Hydrogen"], c: "Oxygen" },
-                { id: "q_his_1", q: "Which country is home to the Great Pyramid of Giza?", a: ["Mexico", "Egypt", "Greece", "China"], c: "Egypt" },
-                { id: "q_his_2", q: "In what year did the United States become a country?", a: ["1492", "1776", "1812", "1865"], c: "1776" },
-                { id: "q_pop_1", q: "What is the name of Goku's signature blue energy attack?", a: ["Special Beam Cannon", "Kamehameha", "Final Flash", "Spirit Bomb"], c: "Kamehameha" },
-                { id: "q_pop_2", q: "Which Pokémon is #001 in the Pokédex?", a: ["Pikachu", "Bulbasaur", "Charmander", "Squirtle"], c: "Bulbasaur" },
-                { id: "q_pop_3", q: "What is the name of Link's legendary sword?", a: ["Excalibur", "Master Sword", "Zelda Blade", "Lightbringer"], c: "Master Sword" }
-            ];
-
-            // Starter Cards
-            const masterCardList = [
-                { id: "anime_goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://i.ebayimg.com/images/g/V~oAAOSwdXhkF34t/s-l1200.jpg" },
-                { id: "anime_naruto", name: "Naruto", packType: "Anime", rarity: 1, imageUrl: "https://i.ebayimg.com/images/g/HpkAAOSwI~9kJG8Z/s-l1200.jpg" },
-                { id: "anime_vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://i.ebayimg.com/images/g/x6YAAOSwSZFkJQ8H/s-l1200.jpg" },
-                { id: "nin_mario", name: "Mario", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/s/super-mario-odyssey-switch/hero" },
-                { id: "nin_kirby", name: "Kirby", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/k/kirby-and-the-forgotten-land-switch/hero" },
-                { id: "nin_link", name: "Link", packType: "Nintendo", rarity: 2, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/t/the-legend-of-zelda-breath-of-the-wild-switch/hero" },
-                { id: "anime_ssj_goku", name: "SSJ Goku", packType: "Anime", rarity: 3, imageUrl: "https://i.ebayimg.com/images/g/zX8AAOSw~jpkJG8c/s-l1200.jpg" }
-            ];
-
-            try {
-                // Upload Questions
-                for (const item of questionDeck) {
-                    await setDoc(doc(db, "questions", item.id), { q: item.q, a: item.a, c: item.c });
-                }
-                // Upload Cards
-                for (const card of masterCardList) {
-                    await setDoc(doc(db, "cards", card.id), card);
-                }
-                
-                await fetchGameData(); // Reloads game data immediately
-                alert("✅ SUCCESS! Starter Questions and Cards uploaded. You can play now.");
-                switchTab('play');
-            } catch (err) {
-                alert("Error: " + err.message);
-            }
-        };
     </script>
 </body>
 </html>
