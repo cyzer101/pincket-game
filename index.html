@@ -278,21 +278,38 @@
             });
         };
 
-        onAuthStateChanged(auth, async (user) => {
+       onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-overlay').classList.add('hidden');
                 const ds = await getDoc(doc(db, "users", user.uid));
                 if (ds.exists()) { 
                     userData = ds.data(); 
                     if (!Array.isArray(userData.inventory)) userData.inventory = [];
-                    // Add IDs to old cards so they can be sold safely
-                    let updated = false;
-                    userData.inventory.forEach(c => { if(!c.instanceId) { c.instanceId = Date.now() + Math.random(); updated = true; } });
-                    if(updated) saveToCloud();
                     if (!userData.avatarUrl) userData.avatarUrl = ""; 
                 }
-                await fetchGameData(); window.updateUI();
-            } else { document.getElementById('auth-overlay').classList.remove('hidden'); }
+                
+                await fetchGameData(); // Loads the master deck
+                
+                // --- THE AUTO-HEAL SCRIPT ---
+                let updated = false;
+                userData.inventory.forEach(c => { 
+                    // 1. Give old cards a sell ID
+                    if(!c.instanceId) { c.instanceId = Date.now() + Math.random(); updated = true; }
+                    
+                    // 2. Fix broken image links from old pulls
+                    const masterCard = cloudCards.find(mc => mc.id === c.id);
+                    if(masterCard && c.imageUrl !== masterCard.imageUrl) {
+                        c.imageUrl = masterCard.imageUrl; // Overwrite with the working link
+                        updated = true;
+                    }
+                });
+                
+                if(updated) await saveToCloud(); // Save the repaired inventory
+                window.updateUI();
+                
+            } else { 
+                document.getElementById('auth-overlay').classList.remove('hidden'); 
+            }
         });
     </script>
 </body>
