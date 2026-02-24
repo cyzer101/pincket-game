@@ -54,15 +54,18 @@
             { id: "q_pop_3", q: "What is the name of Link's legendary sword?", a: ["Excalibur", "Master Sword", "Zelda Blade", "Lightbringer"], c: "Master Sword" }
         ];
 
-        // 2. YOUR CARDS
+     // 2. YOUR CARDS
         const masterCardList = [
-            { id: "anime_goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://i.ebayimg.com/images/g/V~oAAOSwdXhkF34t/s-l1200.jpg" },
-            { id: "anime_naruto", name: "Naruto", packType: "Anime", rarity: 1, imageUrl: "https://i.ebayimg.com/images/g/HpkAAOSwI~9kJG8Z/s-l1200.jpg" },
-            { id: "anime_vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://i.ebayimg.com/images/g/x6YAAOSwSZFkJQ8H/s-l1200.jpg" },
+            // ANIME PACK (Stable Wiki Sources)
+            { id: "anime_goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/af/Son_Goku_YoungAdult.PNG" },
+            { id: "anime_naruto", name: "Naruto", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/9a/NarutoUzuzmaki.png" },
+            { id: "anime_vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/f/f6/Vegeta_Dragon_Ball.jpg" },
+            { id: "anime_ssj_goku", name: "SSJ Goku", packType: "Anime", rarity: 3, imageUrl: "https://static.wikia.nocookie.net/dragonball/images/c/cb/Goku_Super_Saiyan.png" }, // Cleaned Fandom static link
+            
+            // NINTENDO PACK (Stable Official Sources)
             { id: "nin_mario", name: "Mario", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/s/super-mario-odyssey-switch/hero" },
             { id: "nin_kirby", name: "Kirby", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/k/kirby-and-the-forgotten-land-switch/hero" },
-            { id: "nin_link", name: "Link", packType: "Nintendo", rarity: 2, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/t/the-legend-of-zelda-breath-of-the-wild-switch/hero" },
-            { id: "anime_ssj_goku", name: "SSJ Goku", packType: "Anime", rarity: 3, imageUrl: "https://i.ebayimg.com/images/g/zX8AAOSw~jpkJG8c/s-l1200.jpg" }
+            { id: "nin_link", name: "Link", packType: "Nintendo", rarity: 2, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/t/the-legend-of-zelda-breath-of-the-wild-switch/hero" }
         ];
 
         window.uploadData = async () => {
@@ -102,3 +105,4 @@
     </script>
 </body>
 </html>
+
