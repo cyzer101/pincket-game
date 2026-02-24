@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pincket Admin: Card Uploader</title>
+    <title>Pincket Admin: Question Uploader</title>
     <style>
         body { font-family: sans-serif; background: #111; color: white; padding: 40px; text-align: center; }
-        .btn { background: #ff007f; color: white; padding: 15px 30px; font-size: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn:hover { background: #00d4ff; color: #111; }
-        #status { margin-top: 20px; font-size: 18px; color: #00d4ff; }
+        .btn { background: #00d4ff; color: #111; padding: 15px 30px; font-size: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #ff007f; color: white; }
+        #status { margin-top: 20px; font-size: 18px; color: #ff007f; }
     </style>
 </head>
 <body>
 
-    <h1>Card Database Uploader</h1>
-    <p>Click the button below to push the card list to Firestore.</p>
+    <h1>Question Database Uploader</h1>
+    <p>Click the button below to push the trivia deck to Firestore.</p>
     
-    <button class="btn" onclick="uploadCards()">🚀 Upload Cards to Cloud</button>
+    <button class="btn" onclick="uploadQuestions()">🧠 Upload Questions to Cloud</button>
     
     <div id="status">Waiting...</div>
 
@@ -22,7 +22,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Your exact Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyD3BQO2283K_FSIsu-oaxEAEH5lutv5AuA",
             authDomain: "pincket-database.firebaseapp.com",
@@ -35,42 +34,59 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- THE MASTER CARD LIST ---
-        // Rarity Key: 1 = Common, 2 = Rare, 3 = Ultra Rare
-        const masterCardList = [
-            // ANIME PACK
-            { id: "anime_goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://i.ebayimg.com/images/g/V~oAAOSwdXhkF34t/s-l1200.jpg" },
-            { id: "anime_naruto", name: "Naruto Uzumaki", packType: "Anime", rarity: 1, imageUrl: "https://i.ebayimg.com/images/g/HpkAAOSwI~9kJG8Z/s-l1200.jpg" },
-            { id: "anime_vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://i.ebayimg.com/images/g/x6YAAOSwSZFkJQ8H/s-l1200.jpg" },
-            { id: "anime_kakashi", name: "Kakashi Hatake", packType: "Anime", rarity: 2, imageUrl: "https://i.ebayimg.com/images/g/m4QAAOSw-K9kJG8a/s-l1200.jpg" },
-            { id: "anime_ssj_goku", name: "Super Saiyan Goku", packType: "Anime", rarity: 3, imageUrl: "https://i.ebayimg.com/images/g/zX8AAOSw~jpkJG8c/s-l1200.jpg" }, // Ultra Rare!
-
-            // NINTENDO PACK
-            { id: "nin_mario", name: "Mario", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/s/super-mario-odyssey-switch/hero" },
-            { id: "nin_kirby", name: "Kirby", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/k/kirby-and-the-forgotten-land-switch/hero" },
-            { id: "nin_link", name: "Link", packType: "Nintendo", rarity: 2, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/t/the-legend-of-zelda-breath-of-the-wild-switch/hero" },
-            { id: "nin_bowser", name: "Bowser", packType: "Nintendo", rarity: 2, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/s/super-mario-3d-world-plus-bowsers-fury-switch/hero" },
-            { id: "nin_gold_mario", name: "Gold Mario", packType: "Nintendo", rarity: 3, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/m/mario-kart-8-deluxe-switch/hero" } // Ultra Rare!
+        // --- THE QUESTION LIST ---
+        const questionDeck = [
+            // MATH
+            { id: "q_math_1", q: "What is 8 x 7?", a: ["54", "56", "64", "48"], c: "56" },
+            { id: "q_math_2", q: "What is 12 x 5?", a: ["50", "60", "70", "55"], c: "60" },
+            { id: "q_math_3", q: "What is half of 150?", a: ["50", "75", "85", "100"], c: "75" },
+            { id: "q_math_4", q: "How many sides does a hexagon have?", a: ["5", "6", "7", "8"], c: "6" },
+            { id: "q_math_5", q: "What is 9 x 4?", a: ["32", "36", "42", "38"], c: "36" },
+            
+            // SCIENCE
+            { id: "q_sci_1", q: "Which planet is closest to the Sun?", a: ["Venus", "Mars", "Mercury", "Earth"], c: "Mercury" },
+            { id: "q_sci_2", q: "What gas do humans need to breathe to live?", a: ["Carbon Dioxide", "Nitrogen", "Oxygen", "Hydrogen"], c: "Oxygen" },
+            { id: "q_sci_3", q: "How many bones are in the adult human body?", a: ["186", "206", "226", "256"], c: "206" },
+            { id: "q_sci_4", q: "Which animal is the largest on Earth?", a: ["Elephant", "Blue Whale", "Giraffe", "Great White Shark"], c: "Blue Whale" },
+            
+            // HISTORY & GEOGRAPHY
+            { id: "q_his_1", q: "Which country is home to the Great Pyramid of Giza?", a: ["Mexico", "Egypt", "Greece", "China"], c: "Egypt" },
+            { id: "q_his_2", q: "In what year did the United States become a country?", a: ["1492", "1776", "1812", "1865"], c: "1776" },
+            { id: "q_his_3", q: "What is the smallest continent?", a: ["Europe", "Antarctica", "Australia", "South America"], c: "Australia" },
+            { id: "q_his_4", q: "Who was the primary author of the Declaration of Independence?", a: ["George Washington", "Thomas Jefferson", "Benjamin Franklin", "John Adams"], c: "Thomas Jefferson" },
+            
+            // ANIME & NINTENDO (The Hook)
+            { id: "q_pop_1", q: "What is the name of Goku's signature blue energy attack?", a: ["Special Beam Cannon", "Kamehameha", "Final Flash", "Spirit Bomb"], c: "Kamehameha" },
+            { id: "q_pop_2", q: "Which Pokémon is #001 in the Pokédex?", a: ["Pikachu", "Bulbasaur", "Charmander", "Squirtle"], c: "Bulbasaur" },
+            { id: "q_pop_3", q: "What is the name of Link's legendary sword?", a: ["Excalibur", "Master Sword", "Zelda Blade", "Lightbringer"], c: "Master Sword" },
+            { id: "q_pop_4", q: "In Naruto, what is the name of the village where Naruto lives?", a: ["Cloud Village", "Leaf Village", "Sand Village", "Mist Village"], c: "Leaf Village" },
+            { id: "q_pop_5", q: "Who is Mario's dinosaur companion?", a: ["Bowser", "Toad", "Yoshi", "Donkey Kong"], c: "Yoshi" },
+            { id: "q_pop_6", q: "What item allows Kirby to fly?", a: ["Star Rod", "Warp Star", "Maxim Tomato", "Power Star"], c: "Warp Star" },
+            { id: "q_pop_7", q: "What is the name of the main dragon in Dragon Ball Z?", a: ["Shenron", "Porunga", "Rayquaza", "Tiamat"], c: "Shenron" },
+            { id: "q_pop_8", q: "Which Nintendo console featured 'Wii Sports'?", a: ["GameCube", "Wii", "N64", "Switch"], c: "Wii" },
+            
+            // GENERAL KNOWLEDGE
+            { id: "q_gen_1", q: "What is the capital of France?", a: ["Berlin", "London", "Paris", "Madrid"], c: "Paris" },
+            { id: "q_gen_2", q: "What is the boiling point of water in Celsius?", a: ["90°C", "100°C", "110°C", "120°C"], c: "100°C" },
+            { id: "q_gen_3", q: "How many states are in the USA?", a: ["48", "50", "52", "49"], c: "50" },
+            { id: "q_gen_4", q: "What do bees collect from flowers to make honey?", a: ["Water", "Nectar", "Pollen", "Sugar"], c: "Nectar" }
         ];
 
-        // --- THE UPLOAD FUNCTION ---
-        window.uploadCards = async () => {
+        window.uploadQuestions = async () => {
             const statusDiv = document.getElementById('status');
-            statusDiv.innerText = "Uploading... please wait.";
+            statusDiv.innerText = "Uploading questions... please wait.";
             
             try {
                 let count = 0;
-                for (const card of masterCardList) {
-                    // We use the 'id' field as the document name so it doesn't create duplicates if you run it twice
-                    await setDoc(doc(db, "cards", card.id), {
-                        name: card.name,
-                        packType: card.packType,
-                        rarity: card.rarity,
-                        imageUrl: card.imageUrl
+                for (const item of questionDeck) {
+                    await setDoc(doc(db, "questions", item.id), {
+                        q: item.q,
+                        a: item.a,
+                        c: item.c
                     });
                     count++;
                 }
-                statusDiv.innerText = `✅ Success! Uploaded ${count} cards to Firestore.`;
+                statusDiv.innerText = `✅ Success! Uploaded ${count} questions to Firestore.`;
                 statusDiv.style.color = "#00ff00";
             } catch (error) {
                 statusDiv.innerText = `❌ Error: ${error.message}`;
