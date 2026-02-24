@@ -5,50 +5,33 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
         body { font-family: 'Nunito', sans-serif; margin: 0; background: #100b20; color: white; display: flex; height: 100vh; overflow: hidden; }
-        
         #sidebar { width: 260px; background: #231245; border-right: 5px solid #ff007f; padding: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
         .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 4px 4px 0px #00d4ff; }
-        
         #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: pop 0.2s ease-out; }
         @keyframes pop { 0% { transform: scale(0.98); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
         .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.1s; background: #00d4ff; color: #100b20; box-shadow: 0px 4px 0px #0097b2; position: relative; outline: none; }
         .btn:active { top: 4px; box-shadow: 0px 0px 0px transparent; }
         .btn-nav { width: 100%; margin-bottom: 5px; }
         .btn-answer { background: #ff007f; color: white; width: 100%; box-shadow: 0px 4px 0px #c20062; margin-top: 10px; }
-        
-        .trivia-container { background: #231245; padding: 30px; border-radius: 20px; max-width: 500px; margin: 0 auto; border: 4px solid #00d4ff; box-shadow: 6px 6px 0px #ff007f; }
-        .pack { background: #231245; border: 4px solid #ff007f; border-radius: 15px; padding: 20px; cursor: pointer; transition: 0.3s; display: inline-block; width: 140px; margin: 10px; }
-        .pack:hover { transform: scale(1.05) rotate(2deg); }
-
-        /* --- 3D CARD FLIP UI --- */
+        .pack { background: #231245; border: 4px solid #ff007f; border-radius: 15px; padding: 20px; cursor: pointer; display: inline-block; width: 140px; margin: 10px; }
         #reveal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; align-items: center; justify-content: center; flex-direction: column; }
-        .card-container { width: 250px; height: 350px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
+        .card-container { width: 250px; height: 350px; perspective: 1000px; cursor: pointer; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 20px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
         .card-front { background: linear-gradient(45deg, #ff007f, #00d4ff); }
-        .card-front::after { content: "PINCKET"; font-size: 30px; font-weight: 900; color: white; text-shadow: 2px 2px 0px #100b20; }
         .card-back { background: #fff; color: #100b20; transform: rotateY(180deg); flex-direction: column; padding: 15px; box-sizing: border-box; }
         .card-img { width: 100%; height: 75%; object-fit: contain; }
-        .rarity-label { font-size: 12px; font-weight: 900; background: #100b20; color: white; padding: 3px 10px; border-radius: 10px; margin-top: 5px; }
-
-        /* --- INVENTORY GRID --- */
         .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; padding: 20px; }
         .inv-card { background: white; border-radius: 12px; padding: 8px; border: 3px solid #00d4ff; color: #100b20; display: flex; flex-direction: column; align-items: center; }
-        .inv-card img { width: 100%; height: 80px; object-fit: contain; }
-
-        /* --- AUTH UI --- */
         #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 300; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 320px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
     <div id="reveal-overlay">
         <h2 id="reveal-text" style="color: #00d4ff; margin-bottom: 20px; font-size: 30px;">TAP TO FLIP!</h2>
         <div class="card-container" onclick="flipCard()">
@@ -57,63 +40,39 @@
                 <div class="card-back">
                     <img id="reveal-img" class="card-img" src="">
                     <h3 id="reveal-name" style="margin: 10px 0 0 0; font-size: 20px;">?</h3>
-                    <div id="reveal-rarity" class="rarity-label">COMMON</div>
                 </div>
             </div>
         </div>
-        <button id="collect-btn" class="btn hidden" style="margin-top: 20px; background: #ff007f; color: white;" onclick="closeReveal()">Add to Collection</button>
+        <button id="collect-btn" class="btn hidden" style="margin-top: 20px; background: #ff007f; color: white;" onclick="closeReveal()">Collect Card</button>
     </div>
 
     <div id="auth-overlay">
         <div class="auth-box">
-            <h1 style="font-weight:900; color:#ff007f; margin:0;">PINCKET</h1>
-            <p style="color:#666; font-size:14px; margin-bottom:20px;">Cloud Collection</p>
-            <input type="email" id="email" placeholder="Email" class="auth-input">
-            <input type="password" id="password" placeholder="Password" class="auth-input">
+            <h1>PINCKET</h1>
+            <input type="email" id="email" placeholder="Email" style="width:100%; padding:10px; margin:5px 0;">
+            <input type="password" id="password" placeholder="Password" style="width:100%; padding:10px; margin:5px 0;">
             <button class="btn btn-nav" onclick="handleAuth('login')">Login</button>
-            <button class="btn" style="background:#eee; border:none; width:100%; margin-top:5px; box-shadow:none;" onclick="handleAuth('signup')">Create Account</button>
-            <p id="auth-error" style="color:red; font-size:12px; margin-top:10px;"></p>
+            <button class="btn" style="background:#eee; width:100%;" onclick="handleAuth('signup')">Sign Up</button>
         </div>
     </div>
 
     <div id="sidebar">
-        <div class="profile-card">
-            <div style="font-size: 40px;">👤</div>
-            <div style="font-size: 24px; color: #ff007f; font-weight: 900;"><span id="tokenCount">0</span> 💰</div>
-        </div>
-        <button class="btn btn-nav" onclick="switchTab('home')">🏠 Home</button>
-        <button class="btn btn-nav" onclick="switchTab('play')">🎮 Play</button>
-        <button class="btn btn-nav" onclick="switchTab('market')">🛒 Market</button>
-        <button class="btn btn-nav" onclick="switchTab('inventory')">🎒 Collection</button>
-        <div style="flex-grow:1;"></div>
-        <button class="btn" style="background:#ff4757; border:none; color:white; font-size:10px; box-shadow:none;" onclick="logout()">Logout</button>
+        <div class="profile-card">💰 <span id="tokenCount">0</span></div>
+        <button class="btn btn-nav" onclick="switchTab('home')">Home</button>
+        <button class="btn btn-nav" onclick="switchTab('play')">Play</button>
+        <button class="btn btn-nav" onclick="switchTab('market')">Market</button>
+        <button class="btn btn-nav" onclick="switchTab('inventory')">Collection</button>
+        <button class="btn" style="background:#ff4757; color:white;" onclick="logout()">Logout</button>
     </div>
 
     <div id="main-content">
-        <div id="homeTab" class="tab-content active">
-            <h1 style="font-size:60px; text-shadow: 4px 4px #ff007f; margin-bottom:10px;">Welcome Back!</h1>
-            <p style="font-size:22px; opacity:0.8; margin-bottom:40px;">Answer questions, earn tokens, pull rare cards.</p>
-            <button class="btn" style="padding: 25px 60px; font-size: 24px;" onclick="switchTab('play')">Start Earning</button>
-        </div>
-
-        <div id="playTab" class="tab-content">
-            <div class="trivia-container">
-                <div id="question-text" style="font-size:24px; font-weight:900; margin-bottom:20px;">Fetching library...</div>
-                <div id="answers-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
-                <div id="trivia-feedback" style="margin-top:20px; font-weight:900; min-height:24px;"></div>
-            </div>
-        </div>
-
+        <div id="homeTab" class="tab-content active"><h1>Welcome to Pincket</h1></div>
+        <div id="playTab" class="tab-content"><h2 id="q-text">Loading...</h2><div id="ans-grid"></div></div>
         <div id="marketTab" class="tab-content">
-            <h2 style="font-size:32px;">The Market (100 💰)</h2>
-            <div class="pack" onclick="buyPack('Anime')"><div style="font-size:40px;">🔥</div><h3>Anime</h3></div>
-            <div class="pack" onclick="buyPack('Nintendo')"><div style="font-size:40px;">🍄</div><h3>Nintendo</h3></div>
+            <div class="pack" onclick="buyPack('Anime')">Anime</div>
+            <div class="pack" onclick="buyPack('Nintendo')">Nintendo</div>
         </div>
-
-        <div id="inventoryTab" class="tab-content">
-            <h2 style="font-size:32px;">Your Cards</h2>
-            <div id="inv-list" class="inv-grid"></div>
-        </div>
+        <div id="inventoryTab" class="tab-content"><div id="inv-list" class="inv-grid"></div></div>
     </div>
 
     <script type="module">
@@ -121,199 +80,81 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyD3BQO2283K_FSIsu-oaxEAEH5lutv5AuA",
-            authDomain: "pincket-database.firebaseapp.com",
-            projectId: "pincket-database",
-            storageBucket: "pincket-database.firebasestorage.app",
-            messagingSenderId: "944436346969",
-            appId: "1:944436346969:web:307b797544b451bec27148"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyD3BQO2283K_FSIsu-oaxEAEH5lutv5AuA", authDomain: "pincket-database.firebaseapp.com", projectId: "pincket-database", storageBucket: "pincket-database.firebasestorage.app", messagingSenderId: "944436346969", appId: "1:944436346969:web:307b797544b451bec27148" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         
         let userData = { tokens: 0, inventory: [] };
-        let cloudTrivia = []; 
-        let cloudCards = []; 
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playNote(freq, type, duration) {
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + duration);
-        }
-
-        const sounds = {
-            correct: () => { playNote(523, 'square', 0.1); setTimeout(() => playNote(659, 'square', 0.2), 100); },
-            wrong: () => { playNote(220, 'sawtooth', 0.1); setTimeout(() => playNote(110, 'sawtooth', 0.3), 100); },
-            click: () => playNote(440, 'sine', 0.05),
-            pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); }
-        };
+        let cloudTrivia = []; let cloudCards = [];
 
         window.handleAuth = async (type) => {
-            sounds.click();
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            try {
-                if (type === 'signup') {
-                    const res = await createUserWithEmailAndPassword(auth, e, p);
-                    await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [] });
-                } else { await signInWithEmailAndPassword(auth, e, p); }
-            } catch (err) { document.getElementById('auth-error').innerText = err.message; }
+            const e = document.getElementById('email').value; const p = document.getElementById('password').value;
+            if(type === 'signup') {
+                const res = await createUserWithEmailAndPassword(auth, e, p);
+                await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [] });
+            } else { await signInWithEmailAndPassword(auth, e, p); }
         };
-
-        window.logout = () => { sounds.click(); signOut(auth); };
-
+        window.logout = () => signOut(auth);
         window.switchTab = (t) => {
-            sounds.click();
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(t + 'Tab').classList.add('active');
-            if (t === 'play') window.loadQuestion(); 
+            if (t === 'play') window.loadQuestion();
         };
 
         async function fetchGameData() {
-            try {
-                const qSnap = await getDocs(collection(db, "questions"));
-                cloudTrivia = qSnap.docs.map(d => d.data());
-                
-                const cSnap = await getDocs(collection(db, "cards"));
-                cloudCards = cSnap.docs.map(d => d.data());
-            } catch(e) { console.log("Database fetch error:", e); }
-        }
-
-        function getWeightedCard(packType) {
-            const packPool = cloudCards.filter(c => c.packType === packType);
-            if (packPool.length === 0) return { name: "Error: No Cards in DB", imageUrl: "", rarity: 1 };
-            
-            const roll = Math.random() * 100;
-            let rarityTier = roll < 70 ? 1 : (roll < 95 ? 2 : 3); 
-
-            let filteredPool = packPool.filter(c => c.rarity === rarityTier);
-            if (filteredPool.length === 0) filteredPool = packPool; 
-            
-            return filteredPool[Math.floor(Math.random() * filteredPool.length)];
+            const qSnap = await getDocs(collection(db, "questions")); cloudTrivia = qSnap.docs.map(d => d.data());
+            const cSnap = await getDocs(collection(db, "cards")); cloudCards = cSnap.docs.map(d => d.data());
         }
 
         window.buyPack = async (type) => {
             if(userData.tokens >= 100) {
                 userData.tokens -= 100;
-                sounds.pack();
-
-                const pulledCard = getWeightedCard(type);
-                
-                if(!userData.inventory) userData.inventory = [];
-                userData.inventory.push(pulledCard);
-
-                document.getElementById('reveal-img').src = pulledCard.imageUrl || "";
-                document.getElementById('reveal-name').innerText = pulledCard.name;
-                
-                const rLabels = ["", "COMMON", "RARE", "ULTRA RARE"];
-                document.getElementById('reveal-rarity').innerText = rLabels[pulledCard.rarity] || "COMMON";
-                document.getElementById('reveal-text').innerText = "TAP TO FLIP!";
-                
+                const packPool = cloudCards.filter(c => c.packType === type);
+                const pull = packPool[Math.floor(Math.random() * packPool.length)];
+                userData.inventory.push(pull);
+                document.getElementById('reveal-img').src = pull.imageUrl;
+                document.getElementById('reveal-name').innerText = pull.name;
                 document.getElementById('card-inner').classList.remove('is-flipped');
                 document.getElementById('collect-btn').classList.add('hidden');
                 document.getElementById('reveal-overlay').style.display = "flex";
-
-                await saveToCloud();
-                updateUI();
-            } else { 
-                sounds.wrong(); 
-                alert("You need 100 tokens to open a pack!"); 
+                await saveToCloud(); updateUI();
             }
         };
 
-        window.flipCard = () => {
-            document.getElementById('card-inner').classList.add('is-flipped');
-            document.getElementById('reveal-text').innerText = "NEW PULL!";
-            document.getElementById('collect-btn').classList.remove('hidden');
-            playNote(880, 'sine', 0.3);
-        };
+        window.flipCard = () => { document.getElementById('card-inner').classList.add('is-flipped'); document.getElementById('collect-btn').classList.remove('hidden'); };
+        window.closeReveal = () => document.getElementById('reveal-overlay').style.display = "none";
 
-        window.closeReveal = () => {
-            document.getElementById('reveal-overlay').style.display = "none";
-            sounds.click();
-        };
-
-        window.loadQuestion = () => {
-            if (cloudTrivia.length === 0) {
-                document.getElementById('question-text').innerText = "No questions loaded yet!";
-                return;
-            }
-            const q = cloudTrivia[Math.floor(Math.random() * cloudTrivia.length)];
-            document.getElementById('question-text').innerText = q.q;
-            const grid = document.getElementById('answers-grid');
-            grid.innerHTML = "";
-            
-            q.a.sort(() => Math.random() - 0.5).forEach(ans => {
-                const b = document.createElement('button');
-                b.className = "btn btn-answer";
-                b.innerText = ans;
-                b.onclick = async () => {
-                    const fb = document.getElementById('trivia-feedback');
-                    if(ans === q.c) {
-                        userData.tokens += 100; 
-                        sounds.correct();
-                        fb.innerText = "CORRECT! +100 💰";
-                        fb.style.color = "#00d4ff";
-                    } else {
-                        sounds.wrong();
-                        fb.innerText = "WRONG! Keep trying...";
-                        fb.style.color = "#ff007f";
-                    }
-                    await saveToCloud();
-                    updateUI();
-                    setTimeout(() => { fb.innerText = ""; window.loadQuestion(); }, 1200);
-                };
-                grid.appendChild(b);
-            });
-        };
-
-        // --- THE FIX: MERGE TRUE ---
         async function saveToCloud() {
-            if(auth.currentUser) {
-                try {
-                    await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true });
-                } catch (err) {
-                    console.error("Failed to save:", err);
-                }
-            }
+            if(auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true });
         }
 
         function updateUI() {
             document.getElementById('tokenCount').innerText = userData.tokens;
-            const inv = Array.isArray(userData.inventory) ? userData.inventory : [];
-            const rLabels = ["", "C", "R", "UR"];
-            
-            document.getElementById('inv-list').innerHTML = inv.map(card => `
-                <div class="inv-card">
-                    <img src="${card.imageUrl || ''}">
-                    <p style="margin:5px 0 0 0; font-size:12px; font-weight:900; text-align:center;">${card.name || 'Card'}</p>
-                    <span style="font-size:10px; color:#ff007f; font-weight:bold;">${rLabels[card.rarity] || 'C'}</span>
-                </div>
+            document.getElementById('inv-list').innerHTML = (userData.inventory || []).map(c => `
+                <div class="inv-card"><img src="${c.imageUrl}"><p>${c.name}</p></div>
             `).join('');
         }
+
+        window.loadQuestion = () => {
+            if (!cloudTrivia.length) return;
+            const q = cloudTrivia[Math.floor(Math.random() * cloudTrivia.length)];
+            document.getElementById('q-text').innerText = q.q;
+            const grid = document.getElementById('ans-grid'); grid.innerHTML = "";
+            q.a.forEach(ans => {
+                const b = document.createElement('button'); b.className = "btn btn-answer"; b.innerText = ans;
+                b.onclick = async () => { if(ans === q.c) { userData.tokens += 100; await saveToCloud(); updateUI(); window.loadQuestion(); } };
+                grid.appendChild(b);
+            });
+        };
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-overlay').classList.add('hidden');
                 const ds = await getDoc(doc(db, "users", user.uid));
-                if (ds.exists()) {
-                    userData = ds.data();
-                    if (!Array.isArray(userData.inventory)) userData.inventory = [];
-                }
-                await fetchGameData();
-                updateUI();
-            } else {
-                document.getElementById('auth-overlay').classList.remove('hidden');
-            }
+                if (ds.exists()) { userData = ds.data(); if (!Array.isArray(userData.inventory)) userData.inventory = []; }
+                await fetchGameData(); updateUI();
+            } else { document.getElementById('auth-overlay').classList.remove('hidden'); }
         });
     </script>
 </body>
