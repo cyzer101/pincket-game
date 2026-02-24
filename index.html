@@ -30,7 +30,6 @@
         .card-inner.is-flipped { transform: rotateY(180deg); }
         .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
         .card-front { background: linear-gradient(45deg, #ff007f, #00d4ff); }
-        .card-front::after { content: "PINCKET"; font-size: 32px; font-weight: 900; color: white; text-shadow: 3px 3px 0px #100b20; }
         .card-back { background: #fff; color: #100b20; transform: rotateY(180deg); flex-direction: column; padding: 15px; box-sizing: border-box; }
         .card-img { width: 100%; height: 70%; object-fit: contain; border-radius: 10px; }
         .rarity-label { font-size: 14px; font-weight: 900; background: #100b20; color: white; padding: 4px 12px; border-radius: 12px; margin-top: 10px; }
@@ -41,7 +40,18 @@
         .inv-card img { width: 100%; height: 90px; object-fit: contain; }
         .card-btn { font-size:11px; font-weight:bold; padding:6px; cursor:pointer; border-radius:6px; width:100%; transition:0.2s; margin-top: 5px; border: 2px solid; }
 
-        #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 300; display: flex; align-items: center; justify-content: center; }
+        /* Arcade Styles */
+        .arcade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px; margin: 0 auto; }
+        .arcade-btn { background: #231245; border: 4px solid #00d4ff; border-radius: 15px; padding: 30px; cursor: pointer; color: white; transition: 0.2s; box-shadow: 4px 4px 0px #00d4ff; }
+        .arcade-btn:hover { transform: translateY(-5px); box-shadow: 4px 9px 0px #00d4ff; }
+        .arcade-btn h3 { margin: 10px 0 0 0; font-size: 24px; color: #ff007f; }
+        
+        #game-modal { position: fixed; inset: 0; background: #100b20; z-index: 400; display: none; flex-direction: column; align-items: center; padding-top: 50px; }
+        canvas { background: #000; border: 5px solid #ff007f; border-radius: 10px; box-shadow: 0 0 20px #ff007f; }
+        #game-ui { display: flex; justify-content: space-between; width: 400px; margin-bottom: 10px; font-size: 24px; font-weight: bold; }
+        #typer-input { font-size: 30px; text-align: center; padding: 10px; text-transform: uppercase; width: 300px; font-family: 'Nunito', sans-serif; font-weight: 900; border: 4px solid #00d4ff; border-radius: 10px; outline: none; margin-top: 20px; display: none; }
+
+        #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 500; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 340px; text-align: center; }
         .hidden { display: none !important; }
     </style>
@@ -63,6 +73,18 @@
         <button id="collect-btn" class="btn hidden" style="margin-top: 20px; background: #ff007f; color: white; padding: 15px 40px;" onclick="closeReveal()">Collect Card</button>
     </div>
 
+    <div id="game-modal">
+        <div id="game-ui">
+            <span style="color: #00d4ff;">SCORE: <span id="game-score">0</span></span>
+            <span style="color: #ff007f;">COINS: +<span id="game-coins">0</span></span>
+        </div>
+        <h2 id="typer-word" style="font-size: 40px; color: #fff; letter-spacing: 5px; display: none; margin: 0;">WORD</h2>
+        <input type="text" id="typer-input" placeholder="TYPE HERE..." autocomplete="off">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <p id="game-instructions" style="opacity: 0.7; margin-top: 15px;">Tap or Spacebar to Play</p>
+        <button class="btn" style="margin-top: 20px; background: red; color: white;" onclick="quitGame()">Quit & Save Coins</button>
+    </div>
+
     <div id="auth-overlay">
         <div class="auth-box">
             <h1 style="font-weight:900; color:#ff007f; margin:0; font-size: 40px;">PINCKET</h1>
@@ -81,7 +103,8 @@
             <div style="font-size: 28px; color: #ff007f; font-weight: 900;"><span id="tokenCount">0</span> 💰</div>
         </div>
         <button class="btn btn-nav" onclick="switchTab('home')">🏠 Home</button>
-        <button class="btn btn-nav" onclick="switchTab('play')">🎮 Play</button>
+        <button class="btn btn-nav" onclick="switchTab('play')">🧠 Trivia</button>
+        <button class="btn btn-nav" style="background: #ff007f; color: white;" onclick="switchTab('arcade')">🕹️ Arcade</button>
         <button class="btn btn-nav" onclick="switchTab('market')">🛒 Market</button>
         <button class="btn btn-nav" onclick="switchTab('inventory')">🎒 Collection</button>
         <div style="flex-grow:1;"></div>
@@ -91,8 +114,8 @@
     <div id="main-content">
         <div id="homeTab" class="tab-content active">
             <h1 style="font-size:64px; text-shadow: 5px 5px #ff007f; margin-bottom:15px;">Pincket</h1>
-            <p style="font-size:24px; opacity:0.9; margin-bottom:45px;">Train your brain. Pull rare cards.</p>
-            <button class="btn" style="padding: 25px 60px; font-size: 26px;" onclick="switchTab('play')">Start Earning</button>
+            <p style="font-size:24px; opacity:0.9; margin-bottom:45px;">Train your brain. Play games. Pull rare cards.</p>
+            <button class="btn" style="padding: 25px 60px; font-size: 26px;" onclick="switchTab('arcade')">Play Arcade</button>
         </div>
 
         <div id="playTab" class="tab-content">
@@ -100,6 +123,32 @@
                 <div id="question-text" style="font-size:26px; font-weight:900; margin-bottom:25px;">Loading deck...</div>
                 <div id="answers-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
                 <div id="trivia-feedback" style="margin-top:25px; font-weight:900; min-height:30px; font-size: 20px;"></div>
+            </div>
+        </div>
+
+        <div id="arcadeTab" class="tab-content">
+            <h2 style="font-size:36px; margin-bottom: 30px;">Neon Arcade</h2>
+            <div class="arcade-grid">
+                <div class="arcade-btn" onclick="launchGame('dash')">
+                    <div style="font-size: 50px;">🟩</div>
+                    <h3>Neon Dash</h3>
+                    <p>Jump the spikes. (+2 💰)</p>
+                </div>
+                <div class="arcade-btn" onclick="launchGame('flappy')">
+                    <div style="font-size: 50px;">🦅</div>
+                    <h3>Flappy Cube</h3>
+                    <p>Dodge the pipes. (+3 💰)</p>
+                </div>
+                <div class="arcade-btn" onclick="launchGame('hoops')">
+                    <div style="font-size: 50px;">🏀</div>
+                    <h3>Cyber Hoops</h3>
+                    <p>Time your shot. (+5 💰)</p>
+                </div>
+                <div class="arcade-btn" onclick="launchGame('typer')">
+                    <div style="font-size: 50px;">⌨️</div>
+                    <h3>Hacker Typer</h3>
+                    <p>Type fast. (+5 💰)</p>
+                </div>
             </div>
         </div>
 
@@ -152,164 +201,281 @@
             pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); },
             click: () => playNote(440, 'sine', 0.05),
             equip: () => { playNote(659, 'sine', 0.1); setTimeout(() => playNote(880, 'sine', 0.2), 100); },
-            sell: () => { playNote(880, 'square', 0.1); setTimeout(() => playNote(1760, 'square', 0.1), 100); }
+            sell: () => { playNote(880, 'square', 0.1); setTimeout(() => playNote(1760, 'square', 0.1), 100); },
+            jump: () => playNote(300, 'sine', 0.1),
+            coin: () => playNote(880, 'square', 0.1),
+            crash: () => { playNote(150, 'sawtooth', 0.2); setTimeout(() => playNote(100, 'sawtooth', 0.3), 100); }
         };
 
+        // --- AUTH & CORE ---
         window.handleAuth = async (type) => {
-            sounds.click();
-            const e = document.getElementById('email').value; const p = document.getElementById('password').value;
-            try {
-                if (type === 'signup') {
-                    const res = await createUserWithEmailAndPassword(auth, e, p);
-                    await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [], avatarUrl: "" });
-                } else { await signInWithEmailAndPassword(auth, e, p); }
+            sounds.click(); const e = document.getElementById('email').value; const p = document.getElementById('password').value;
+            try { if (type === 'signup') { const res = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [], avatarUrl: "" }); } else { await signInWithEmailAndPassword(auth, e, p); }
             } catch (err) { document.getElementById('auth-error').innerText = err.message; }
         };
         window.logout = () => { sounds.click(); signOut(auth); };
         window.switchTab = (t) => {
-            sounds.click();
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById(t + 'Tab').classList.add('active');
+            sounds.click(); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.getElementById(t + 'Tab').classList.add('active');
             if (t === 'play') window.loadQuestion(); 
         };
+        async function fetchGameData() { try { const qSnap = await getDocs(collection(db, "questions")); cloudTrivia = qSnap.docs.map(d => d.data()); const cSnap = await getDocs(collection(db, "cards")); cloudCards = cSnap.docs.map(d => d.data()); } catch(e) { console.error(e); } }
+        async function saveToCloud() { if(auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true }); }
 
-        async function fetchGameData() {
-            try {
-                const qSnap = await getDocs(collection(db, "questions")); cloudTrivia = qSnap.docs.map(d => d.data());
-                const cSnap = await getDocs(collection(db, "cards")); cloudCards = cSnap.docs.map(d => d.data());
-            } catch(e) { console.error(e); }
-        }
-
+        // --- MARKET & INVENTORY ---
         window.buyPack = async (type) => {
             if(userData.tokens >= 100) {
                 userData.tokens -= 100; sounds.pack();
                 const packPool = cloudCards.filter(c => c.packType === type);
-                const roll = Math.random() * 100;
-                let tier = roll < 70 ? 1 : (roll < 95 ? 2 : 3);
-                let pool = packPool.filter(c => c.rarity === tier);
-                if (!pool.length) pool = packPool;
-                
-                // Add Unique ID to allow selling without deleting duplicates
+                const roll = Math.random() * 100; let tier = roll < 70 ? 1 : (roll < 95 ? 2 : 3);
+                let pool = packPool.filter(c => c.rarity === tier); if (!pool.length) pool = packPool;
                 const pull = { ...pool[Math.floor(Math.random() * pool.length)], instanceId: Date.now() + Math.random() };
-                
-                if(!userData.inventory) userData.inventory = [];
-                userData.inventory.push(pull);
-
+                if(!userData.inventory) userData.inventory = []; userData.inventory.push(pull);
                 document.getElementById('reveal-img').src = pull.imageUrl || "https://placehold.co/200x300?text=Card";
                 document.getElementById('reveal-name').innerText = pull.name;
-                const rLabels = ["", "COMMON", "RARE", "ULTRA RARE"];
-                document.getElementById('reveal-rarity').innerText = rLabels[pull.rarity] || "COMMON";
+                document.getElementById('reveal-rarity').innerText = ["", "COMMON", "RARE", "ULTRA RARE"][pull.rarity];
                 document.getElementById('card-inner').classList.remove('is-flipped');
                 document.getElementById('collect-btn').classList.add('hidden');
                 document.getElementById('reveal-overlay').style.display = "flex";
                 await saveToCloud(); window.updateUI();
             } else { sounds.wrong(); alert("Not enough tokens!"); }
         };
-
         window.flipCard = () => { document.getElementById('card-inner').classList.add('is-flipped'); document.getElementById('collect-btn').classList.remove('hidden'); playNote(880, 'sine', 0.2); };
         window.closeReveal = () => { document.getElementById('reveal-overlay').style.display = "none"; sounds.click(); };
-
         window.setAvatar = async (url) => { userData.avatarUrl = url; sounds.equip(); await saveToCloud(); window.updateUI(); };
-
         window.sellCard = async (instanceId, rarity) => {
-            const sellValues = [0, 10, 30, 50]; // Common=10, Rare=30, Ultra Rare=50
-            const value = sellValues[rarity] || 10;
-            
-            if(confirm(`Sell this card for ${value} 💰?`)) {
-                userData.inventory = userData.inventory.filter(c => c.instanceId !== instanceId);
-                userData.tokens += value;
-                sounds.sell();
-                await saveToCloud();
-                window.updateUI();
-            }
+            const val = [0, 10, 30, 50][rarity] || 10;
+            if(confirm(`Sell this card for ${val} 💰?`)) { userData.inventory = userData.inventory.filter(c => c.instanceId !== instanceId); userData.tokens += val; sounds.sell(); await saveToCloud(); window.updateUI(); }
         };
-
-        async function saveToCloud() {
-            if(auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true });
-        }
-
         window.updateUI = () => {
             document.getElementById('tokenCount').innerText = userData.tokens;
             if(userData.avatarUrl) document.getElementById('profile-avatar').src = userData.avatarUrl;
-
             const sortType = document.getElementById('sort-filter') ? document.getElementById('sort-filter').value : 'newest';
             let sortedInv = [...(userData.inventory || [])];
-            
-            if (sortType === 'rarity-desc') sortedInv.sort((a, b) => b.rarity - a.rarity);
-            else if (sortType === 'rarity-asc') sortedInv.sort((a, b) => a.rarity - b.rarity);
-            else if (sortType === 'name') sortedInv.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            else sortedInv.reverse();
-
-            const rLabels = ["", "COMMON", "RARE", "ULTRA RARE"];
-            const rColors = ["", "#00d4ff", "#ffd700", "#ff007f"];
-            const sellValues = [0, 10, 30, 50];
-
-            document.getElementById('inv-list').innerHTML = sortedInv.map(card => {
-                const cColor = rColors[card.rarity] || '#fff';
-                const cLabel = rLabels[card.rarity] || 'UNKNOWN';
-                const sValue = sellValues[card.rarity] || 10;
-                return `
-                <div class="inv-card" style="border-color: ${cColor}; box-shadow: 4px 4px 0px ${cColor};">
-                    <img src="${card.imageUrl}">
-                    <p style="margin:8px 0 0 0; font-size:15px; font-weight:900; text-align:center;">${card.name}</p>
-                    <span style="font-size:12px; color:${cColor}; font-weight:900; margin-top:4px; margin-bottom:8px;">${cLabel}</span>
-                    <button class="card-btn" onclick="setAvatar('${card.imageUrl}')" style="background:#100b20; color:${cColor}; border-color:${cColor};">Set Avatar</button>
-                    <button class="card-btn" onclick="sellCard(${card.instanceId}, ${card.rarity})" style="background:#ff4757; color:white; border-color:#ff4757;">Sell (💰${sValue})</button>
-                </div>
-                `;
-            }).join('');
+            if (sortType === 'rarity-desc') sortedInv.sort((a, b) => b.rarity - a.rarity); else if (sortType === 'rarity-asc') sortedInv.sort((a, b) => a.rarity - b.rarity); else if (sortType === 'name') sortedInv.sort((a, b) => (a.name || "").localeCompare(b.name || "")); else sortedInv.reverse();
+            const rLabels = ["", "COMMON", "RARE", "ULTRA RARE"]; const rColors = ["", "#00d4ff", "#ffd700", "#ff007f"]; const sVals = [0, 10, 30, 50];
+            document.getElementById('inv-list').innerHTML = sortedInv.map(c => `
+                <div class="inv-card" style="border-color: ${rColors[c.rarity]}; box-shadow: 4px 4px 0px ${rColors[c.rarity]};">
+                    <img src="${c.imageUrl}">
+                    <p style="margin:8px 0 0 0; font-size:15px; font-weight:900; text-align:center;">${c.name}</p>
+                    <span style="font-size:12px; color:${rColors[c.rarity]}; font-weight:900; margin-top:4px; margin-bottom:8px;">${rLabels[c.rarity]}</span>
+                    <button class="card-btn" onclick="setAvatar('${c.imageUrl}')" style="background:#100b20; color:${rColors[c.rarity]}; border-color:${rColors[c.rarity]};">Set Avatar</button>
+                    <button class="card-btn" onclick="sellCard(${c.instanceId}, ${c.rarity})" style="background:#ff4757; color:white; border-color:#ff4757;">Sell (💰${sVals[c.rarity]})</button>
+                </div>`).join('');
         };
 
+        // --- TRIVIA ---
         window.loadQuestion = () => {
-            if (!cloudTrivia.length) return;
-            const q = cloudTrivia[Math.floor(Math.random() * cloudTrivia.length)];
-            document.getElementById('question-text').innerText = q.q;
-            const grid = document.getElementById('answers-grid'); grid.innerHTML = "";
+            if (!cloudTrivia.length) return; const q = cloudTrivia[Math.floor(Math.random() * cloudTrivia.length)];
+            document.getElementById('question-text').innerText = q.q; const grid = document.getElementById('answers-grid'); grid.innerHTML = "";
             q.a.sort(() => Math.random() - 0.5).forEach(ans => {
                 const b = document.createElement('button'); b.className = "btn btn-answer"; b.innerText = ans;
-                b.onclick = async () => {
-                    const fb = document.getElementById('trivia-feedback');
+                b.onclick = async () => { const fb = document.getElementById('trivia-feedback');
                     if(ans === q.c) { userData.tokens += 100; sounds.correct(); fb.innerText = "CORRECT! +100💰"; fb.style.color = "#00d4ff"; }
                     else { sounds.wrong(); fb.innerText = "WRONG! Try again!"; fb.style.color = "#ff007f"; }
-                    await saveToCloud(); window.updateUI();
-                    setTimeout(() => { fb.innerText = ""; window.loadQuestion(); }, 1200);
-                };
-                grid.appendChild(b);
+                    await saveToCloud(); window.updateUI(); setTimeout(() => { fb.innerText = ""; window.loadQuestion(); }, 1200);
+                }; grid.appendChild(b);
             });
         };
 
-       onAuthStateChanged(auth, async (user) => {
+        // ==========================================
+        //         ARCADE ENGINE (HTML5 CANVAS)
+        // ==========================================
+        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+        let gameLoop, activeGame = null, gameScore = 0, earnedCoins = 0;
+        let keys = {}; 
+        window.addEventListener('keydown', e => { keys[e.code] = true; if(activeGame && e.code === 'Space') e.preventDefault(); });
+        window.addEventListener('keyup', e => keys[e.code] = false);
+        canvas.addEventListener('mousedown', () => { keys['Space'] = true; setTimeout(()=>keys['Space']=false, 100); });
+
+        function resetGameUI() {
+            document.getElementById('game-modal').style.display = 'flex';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.getElementById('typer-input').style.display = 'none';
+            document.getElementById('typer-word').style.display = 'none';
+            gameScore = 0; earnedCoins = 0;
+            document.getElementById('game-score').innerText = gameScore;
+            document.getElementById('game-coins').innerText = earnedCoins;
+            if(gameLoop) cancelAnimationFrame(gameLoop);
+        }
+
+        window.quitGame = async () => {
+            if(gameLoop) cancelAnimationFrame(gameLoop);
+            activeGame = null;
+            document.getElementById('game-modal').style.display = 'none';
+            if (earnedCoins > 0) { userData.tokens += earnedCoins; await saveToCloud(); window.updateUI(); }
+            sounds.click();
+        };
+
+        function addScore(coins) {
+            gameScore++; earnedCoins += coins;
+            document.getElementById('game-score').innerText = gameScore;
+            document.getElementById('game-coins').innerText = earnedCoins;
+            sounds.coin();
+        }
+
+        function gameOver() {
+            activeGame = null;
+            sounds.crash();
+            ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(0,0,400,400);
+            ctx.fillStyle = "red"; ctx.font = "40px Nunito"; ctx.fillText("GAME OVER", 80, 200);
+            ctx.fillStyle = "white"; ctx.font = "20px Nunito"; ctx.fillText(`Tap to save +${earnedCoins} 💰`, 100, 240);
+        }
+
+        window.launchGame = (gameId) => {
+            resetGameUI();
+            if(gameId === 'dash') startDash();
+            if(gameId === 'flappy') startFlappy();
+            if(gameId === 'hoops') startHoops();
+            if(gameId === 'typer') startTyper();
+        };
+
+        // 1. NEON DASH
+        function startDash() {
+            activeGame = 'dash'; let cubeY = 300, vY = 0, isJumping = false, spikes = [];
+            let frame = 0, speed = 5;
+            function update() {
+                if(activeGame !== 'dash') return;
+                ctx.clearRect(0,0,400,400);
+                
+                // Floor
+                ctx.fillStyle = "#ff007f"; ctx.fillRect(0, 340, 400, 60);
+
+                // Jump logic
+                if (keys['Space'] && !isJumping) { vY = -12; isJumping = true; sounds.jump(); }
+                vY += 0.6; cubeY += vY;
+                if(cubeY > 300) { cubeY = 300; vY = 0; isJumping = false; }
+
+                // Cube
+                ctx.fillStyle = "#00d4ff"; ctx.fillRect(50, cubeY, 40, 40);
+
+                // Spikes
+                if(frame % 90 === 0) spikes.push({x: 400, passed: false});
+                for(let i=0; i<spikes.length; i++) {
+                    let s = spikes[i]; s.x -= speed;
+                    ctx.fillStyle = "red"; 
+                    ctx.beginPath(); ctx.moveTo(s.x, 340); ctx.lineTo(s.x+20, 300); ctx.lineTo(s.x+40, 340); ctx.fill();
+                    
+                    // Collision
+                    if (s.x < 90 && s.x + 40 > 50 && cubeY + 40 > 300) { gameOver(); return; }
+                    // Score
+                    if(s.x < 50 && !s.passed) { s.passed = true; addScore(2); speed += 0.1; }
+                }
+                frame++; gameLoop = requestAnimationFrame(update);
+            }
+            update();
+        }
+
+        // 2. FLAPPY CUBE
+        function startFlappy() {
+            activeGame = 'flappy'; let y = 200, v = 0, pipes = [], frame = 0;
+            let spacePressed = false;
+            function update() {
+                if(activeGame !== 'flappy') return;
+                ctx.clearRect(0,0,400,400);
+
+                // Controls
+                if (keys['Space'] && !spacePressed) { v = -7; spacePressed = true; sounds.jump(); }
+                if (!keys['Space']) spacePressed = false;
+                
+                v += 0.4; y += v;
+                ctx.fillStyle = "#00d4ff"; ctx.fillRect(100, y, 30, 30);
+
+                if(y > 400 || y < 0) { gameOver(); return; }
+
+                if(frame % 100 === 0) {
+                    let gapY = Math.random() * 200 + 50;
+                    pipes.push({x: 400, top: gapY, bottom: gapY + 120, passed: false});
+                }
+
+                for(let i=0; i<pipes.length; i++) {
+                    let p = pipes[i]; p.x -= 3;
+                    ctx.fillStyle = "#ff007f";
+                    ctx.fillRect(p.x, 0, 50, p.top);
+                    ctx.fillRect(p.x, p.bottom, 50, 400 - p.bottom);
+
+                    // Collision
+                    if(p.x < 130 && p.x + 50 > 100) {
+                        if(y < p.top || y + 30 > p.bottom) { gameOver(); return; }
+                    }
+                    if(p.x < 100 && !p.passed) { p.passed = true; addScore(3); }
+                }
+                frame++; gameLoop = requestAnimationFrame(update);
+            }
+            update();
+        }
+
+        // 3. CYBER HOOPS
+        function startHoops() {
+            activeGame = 'hoops'; 
+            let hoopX = 150, dir = 3, ballY = 350, ballX = 200, isShooting = false;
+            function update() {
+                if(activeGame !== 'hoops') return;
+                ctx.clearRect(0,0,400,400);
+
+                // Hoop
+                hoopX += dir;
+                if(hoopX < 0 || hoopX > 320) dir *= -1;
+                ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 5;
+                ctx.strokeRect(hoopX, 50, 80, 10);
+
+                // Ball
+                if (keys['Space'] && !isShooting) { isShooting = true; sounds.jump(); }
+                if (isShooting) ballY -= 10;
+                
+                ctx.fillStyle = "#ffaa00";
+                ctx.beginPath(); ctx.arc(ballX, ballY, 15, 0, Math.PI*2); ctx.fill();
+
+                // Check Score
+                if (ballY < 60) {
+                    if (ballX > hoopX && ballX < hoopX + 80) { addScore(5); dir += (dir > 0 ? 0.5 : -0.5); } 
+                    else { sounds.wrong(); }
+                    isShooting = false; ballY = 350;
+                }
+                gameLoop = requestAnimationFrame(update);
+            }
+            update();
+        }
+
+        // 4. HACKER TYPER
+        function startTyper() {
+            activeGame = 'typer';
+            document.getElementById('gameCanvas').style.display = 'none';
+            const wordEl = document.getElementById('typer-word');
+            const inputEl = document.getElementById('typer-input');
+            wordEl.style.display = 'block'; inputEl.style.display = 'block';
+            
+            const words = ["MARIO", "GOKU", "ZELDA", "NINTENDO", "PIKACHU", "SCIENCE", "MATH", "ANIME", "KIRBY", "NARUTO", "VEGETA", "SMASH", "DRAGON"];
+            let currentWord = "";
+
+            function newWord() {
+                currentWord = words[Math.floor(Math.random() * words.length)];
+                wordEl.innerText = currentWord;
+                inputEl.value = "";
+            }
+
+            inputEl.oninput = (e) => {
+                if (e.target.value.toUpperCase() === currentWord) {
+                    addScore(5); newWord();
+                }
+            };
+            
+            newWord(); inputEl.focus();
+        }
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-overlay').classList.add('hidden');
                 const ds = await getDoc(doc(db, "users", user.uid));
                 if (ds.exists()) { 
                     userData = ds.data(); 
                     if (!Array.isArray(userData.inventory)) userData.inventory = [];
+                    let updated = false;
+                    userData.inventory.forEach(c => { if(!c.instanceId) { c.instanceId = Date.now() + Math.random(); updated = true; } });
+                    if(updated) saveToCloud();
                     if (!userData.avatarUrl) userData.avatarUrl = ""; 
                 }
-                
-                await fetchGameData(); // Loads the master deck
-                
-                // --- THE AUTO-HEAL SCRIPT ---
-                let updated = false;
-                userData.inventory.forEach(c => { 
-                    // 1. Give old cards a sell ID
-                    if(!c.instanceId) { c.instanceId = Date.now() + Math.random(); updated = true; }
-                    
-                    // 2. Fix broken image links from old pulls
-                    const masterCard = cloudCards.find(mc => mc.id === c.id);
-                    if(masterCard && c.imageUrl !== masterCard.imageUrl) {
-                        c.imageUrl = masterCard.imageUrl; // Overwrite with the working link
-                        updated = true;
-                    }
-                });
-                
-                if(updated) await saveToCloud(); // Save the repaired inventory
-                window.updateUI();
-                
-            } else { 
-                document.getElementById('auth-overlay').classList.remove('hidden'); 
-            }
+                await fetchGameData(); window.updateUI();
+            } else { document.getElementById('auth-overlay').classList.remove('hidden'); }
         });
     </script>
 </body>
