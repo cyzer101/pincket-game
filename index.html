@@ -290,7 +290,7 @@
         };
 
         // ==========================================
-        //         NINTENDO ARCADE ENGINE
+        //         CRASH-PROOF ARCADE ENGINE
         // ==========================================
         const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
         let gameLoop, activeGame = null, gameScore = 0, earnedCoins = 0;
@@ -298,12 +298,6 @@
         window.addEventListener('keydown', e => { keys[e.code] = true; if(activeGame && e.code === 'Space') e.preventDefault(); });
         window.addEventListener('keyup', e => keys[e.code] = false);
         canvas.addEventListener('mousedown', () => { keys['Space'] = true; setTimeout(()=>keys['Space']=false, 100); });
-
-        // Load Character Sprites
-        const imgMario = new Image(); imgMario.src = "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/a/a9/Mario_NSMBU.png";
-        const imgKirby = new Image(); imgKirby.src = "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/2/2d/Kirby_Cloud.png";
-        const imgDK = new Image(); imgDK.src = "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/c/cd/Donkey_Kong_in_Super_Mario_Odyssey.png";
-        const imgPoke = new Image(); imgPoke.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
 
         function drawGrid(scrollOffset = 0) {
             ctx.strokeStyle = "rgba(0, 212, 255, 0.15)"; ctx.lineWidth = 1; ctx.beginPath();
@@ -348,7 +342,7 @@
 
         window.launchGame = (gameId) => { resetGameUI(); if(gameId==='dash') startDash(); if(gameId==='flappy') startFlappy(); if(gameId==='hoops') startHoops(); if(gameId==='typer') startTyper(); };
 
-        // 1. MARIO DASH (Jump spikes, duck under bills)
+        // 1. MARIO DASH (Jump spikes, dodge rockets)
         function startDash() {
             activeGame = 'dash'; let charY = 280, vY = 0, isJumping = false, obstacles = [];
             let frame = 0, speed = 5, bgScroll = 0;
@@ -362,11 +356,10 @@
                 if (keys['Space'] && !isJumping) { vY = -12; isJumping = true; sounds.jump(); }
                 vY += 0.6; charY += vY; if(charY > 280) { charY = 280; vY = 0; isJumping = false; }
 
-                // Draw Mario
-                if (imgMario.complete) { ctx.drawImage(imgMario, 50, charY, 60, 60); } 
-                else { setGlow("#00d4ff", 15); ctx.fillRect(50, charY, 50, 60); resetGlow(); }
+                // Glowing Hitbox + Mario Emoji
+                setGlow("#00d4ff", 15); ctx.fillRect(50, charY, 40, 40); resetGlow();
+                ctx.font = "30px Arial"; ctx.fillText("🍄", 50, charY + 30);
 
-                // Obstacles (Mix of Spikes and Flying Bills)
                 if(frame % 90 === 0) {
                     const isFlying = Math.random() > 0.5;
                     obstacles.push({ x: 400, isFlying: isFlying, passed: false });
@@ -376,13 +369,14 @@
                     let o = obstacles[i]; o.x -= speed;
                     
                     if (o.isFlying) {
-                        // Flying obstacle (Bullet Bill)
+                        // Rocket Enemy
                         setGlow("purple", 15); ctx.fillRect(o.x, 230, 40, 30); resetGlow();
-                        if (o.x < 100 && o.x + 40 > 50 && charY < 260) { gameOver(); return; } // Hit if jumping
+                        ctx.font = "25px Arial"; ctx.fillText("🚀", o.x, 255);
+                        if (o.x < 90 && o.x + 40 > 50 && charY < 260) { gameOver(); return; } 
                     } else {
                         // Ground Spikes
                         setGlow("red", 15); ctx.beginPath(); ctx.moveTo(o.x, 340); ctx.lineTo(o.x+20, 290); ctx.lineTo(o.x+40, 340); ctx.fill(); resetGlow();
-                        if (o.x < 100 && o.x + 40 > 50 && charY + 60 > 300) { gameOver(); return; } // Hit if grounded
+                        if (o.x < 90 && o.x + 40 > 50 && charY + 40 > 300) { gameOver(); return; } 
                     }
 
                     if(o.x < 50 && !o.passed) { o.passed = true; addScore(2); speed += 0.15; }
@@ -405,9 +399,9 @@
                 
                 v += 0.4; y += v;
                 
-                // Draw Kirby
-                if(imgKirby.complete) { ctx.drawImage(imgKirby, 90, y, 50, 50); }
-                else { setGlow("#00d4ff", 15); ctx.fillRect(100, y, 40, 40); resetGlow(); }
+                // Glowing Hitbox + Star Emoji
+                setGlow("#00d4ff", 15); ctx.fillRect(100, y, 35, 35); resetGlow();
+                ctx.font = "30px Arial"; ctx.fillText("⭐", 100, y + 30);
 
                 if(y > 400 || y < 0) { gameOver(); return; }
 
@@ -418,14 +412,11 @@
                     
                     // Warp Pipes
                     setGlow("#00ff00", 10); ctx.fillStyle = "#00cc00"; 
-                    ctx.fillRect(p.x, 0, 60, p.top); // Top pipe
-                    ctx.fillRect(p.x - 5, p.top - 20, 70, 20); // Top pipe cap
-                    
-                    ctx.fillRect(p.x, p.bottom, 60, 400 - p.bottom); // Bottom pipe
-                    ctx.fillRect(p.x - 5, p.bottom, 70, 20); // Bottom pipe cap
+                    ctx.fillRect(p.x, 0, 60, p.top); ctx.fillRect(p.x - 5, p.top - 20, 70, 20); 
+                    ctx.fillRect(p.x, p.bottom, 60, 400 - p.bottom); ctx.fillRect(p.x - 5, p.bottom, 70, 20); 
                     resetGlow();
 
-                    if(p.x < 140 && p.x + 60 > 90) { if(y < p.top || y + 50 > p.bottom) { gameOver(); return; } }
+                    if(p.x < 135 && p.x + 60 > 100) { if(y < p.top || y + 35 > p.bottom) { gameOver(); return; } }
                     if(p.x < 90 && !p.passed) { p.passed = true; addScore(3); }
                 }
                 frame++; gameLoop = requestAnimationFrame(update);
@@ -446,12 +437,12 @@
                 if (keys['Space'] && !isShooting) { isShooting = true; sounds.jump(); }
                 if (isShooting) ballY -= 12;
                 
-                // Draw DK at bottom
-                if(imgDK.complete) ctx.drawImage(imgDK, 160, 310, 80, 80);
+                // DK Player Base
+                ctx.font = "60px Arial"; ctx.fillText("🦍", 160, 390);
                 
-                // Draw Pokeball
-                if(imgPoke.complete) { ctx.drawImage(imgPoke, ballX - 15, ballY - 15, 30, 30); }
-                else { setGlow("white", 20); ctx.beginPath(); ctx.arc(ballX, ballY, 15, 0, Math.PI*2); ctx.fill(); resetGlow(); }
+                // Glowing Pokeball Hitbox
+                setGlow("white", 20); ctx.beginPath(); ctx.arc(ballX, ballY, 15, 0, Math.PI*2); ctx.fill(); resetGlow();
+                ctx.font = "25px Arial"; ctx.fillText("🔴", ballX - 16, ballY + 8);
 
                 if (ballY < 60) {
                     if (ballX > hoopX && ballX < hoopX + 80) { addScore(5); dir += (dir > 0 ? 0.8 : -0.8); } else { sounds.wrong(); }
@@ -462,7 +453,7 @@
             update();
         }
 
-        // 4. HACKER TYPER (MEGA DICTIONARY)
+        // 4. HACKER TYPER
         function startTyper() {
             activeGame = 'typer';
             document.getElementById('gameCanvas').style.display = 'none';
