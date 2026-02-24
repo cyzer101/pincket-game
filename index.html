@@ -4,13 +4,13 @@
     <title>Pincket: Ultimate Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
-        body { font-family: 'Nunito', sans-serif; margin: 0; background: #100b20; color: white; display: flex; height: 100vh; overflow: hidden; }
+        body { font-family: 'Nunito', sans-serif; margin: 0; background: #100b20; color: white; display: flex; height: 100vh; overflow: hidden; user-select: none; }
         
         #sidebar { width: 260px; background: #231245; border-right: 5px solid #ff007f; padding: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
         .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 4px 4px 0px #00d4ff; display: flex; flex-direction: column; align-items: center; }
         #profile-avatar { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid #ff007f; background: #fff; margin-bottom: 10px; }
         
-        #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); }
+        #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); position: relative; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: pop 0.2s ease-out; }
         @keyframes pop { 0% { transform: scale(0.98); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -41,7 +41,7 @@
         .inv-card img { width: 100%; height: 90px; object-fit: contain; }
         .card-btn { font-size:11px; font-weight:bold; padding:6px; cursor:pointer; border-radius:6px; width:100%; transition:0.2s; margin-top: 5px; border: 2px solid; }
 
-        /* --- ARCADE UI & NEON STYLING --- */
+        /* --- ARCADE UI --- */
         .arcade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px; margin: 0 auto; }
         .arcade-btn { background: #231245; border: 4px solid #00d4ff; border-radius: 15px; padding: 30px; cursor: pointer; color: white; transition: 0.2s; box-shadow: 4px 4px 0px #00d4ff; }
         .arcade-btn:hover { transform: translateY(-5px); box-shadow: 4px 9px 0px #00d4ff; }
@@ -64,7 +64,10 @@
             background: #0a0514; color: #00ff00; border: 4px solid #00ff00; border-radius: 10px; 
             outline: none; margin-top: 20px; display: none; box-shadow: 0 0 20px #00ff00; text-shadow: 0 0 5px #00ff00;
         }
-        #typer-input::placeholder { color: rgba(0, 255, 0, 0.3); }
+
+        /* --- FLOATING CLICK COINS --- */
+        .click-coin { position: absolute; color: #00d4ff; font-weight: 900; font-size: 20px; pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 9999; text-shadow: 0px 0px 10px #00d4ff; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.5); } }
 
         #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 500; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 340px; text-align: center; }
@@ -96,7 +99,7 @@
         <h2 id="typer-word">WORD</h2>
         <input type="text" id="typer-input" placeholder="TERMINAL..." autocomplete="off">
         <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <p id="game-instructions" style="opacity: 0.8; margin-top: 15px; font-size: 18px;">Tap or Spacebar to Play</p>
+        <p id="game-instructions" style="opacity: 0.8; margin-top: 15px; font-size: 18px;">Tap or Use Arrow Keys to Play</p>
         <button class="btn" style="margin-top: 20px; background: red; color: white; border: none;" onclick="quitGame()">Quit & Save Coins</button>
     </div>
 
@@ -142,8 +145,13 @@
         </div>
 
         <div id="arcadeTab" class="tab-content">
-            <h2 style="font-size:36px; margin-bottom: 30px;">Nintendo Arcade</h2>
+            <h2 style="font-size:36px; margin-bottom: 30px;">Neon Arcade</h2>
             <div class="arcade-grid">
+                <div class="arcade-btn" onclick="launchGame('kart')">
+                    <div style="font-size: 50px; text-shadow: 0 0 15px #00d4ff;">🏎️</div>
+                    <h3>Neon Kart</h3>
+                    <p>Steer the road. (+2 💰)</p>
+                </div>
                 <div class="arcade-btn" onclick="launchGame('dash')">
                     <div style="font-size: 50px; text-shadow: 0 0 15px #00d4ff;">🍄</div>
                     <h3>Mario Dash</h3>
@@ -159,7 +167,7 @@
                     <h3>DK Hoops</h3>
                     <p>Shoot the Pokéball. (+5 💰)</p>
                 </div>
-                <div class="arcade-btn" onclick="launchGame('typer')">
+                <div class="arcade-btn" onclick="launchGame('typer')" style="grid-column: span 2;">
                     <div style="font-size: 50px; text-shadow: 0 0 15px #00d4ff;">⌨️</div>
                     <h3>Hacker Typer</h3>
                     <p>Type fast. (+5 💰)</p>
@@ -214,7 +222,7 @@
             correct: () => { playNote(523.25, 'square', 0.1); setTimeout(() => playNote(659.25, 'square', 0.2), 100); },
             wrong: () => { playNote(220, 'sawtooth', 0.1); setTimeout(() => playNote(110, 'sawtooth', 0.3), 100); },
             pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); },
-            click: () => playNote(440, 'sine', 0.05),
+            click: () => playNote(880, 'sine', 0.02), // Very short pop for the clicker
             equip: () => { playNote(659, 'sine', 0.1); setTimeout(() => playNote(880, 'sine', 0.2), 100); },
             sell: () => { playNote(880, 'square', 0.1); setTimeout(() => playNote(1760, 'square', 0.1), 100); },
             jump: () => playNote(300, 'sine', 0.1),
@@ -222,6 +230,33 @@
             crash: () => { playNote(150, 'sawtooth', 0.2); setTimeout(() => playNote(100, 'sawtooth', 0.3), 100); }
         };
 
+        // --- THE BONGO CAT CLICKER ENGINE ---
+        let saveTimeout = null;
+        document.body.addEventListener('click', (e) => {
+            // Ignore clicks inside the canvas so it doesn't mess up gameplay
+            if (e.target.id === 'gameCanvas' || !auth.currentUser) return;
+
+            // Give the token & visual feedback
+            userData.tokens += 1;
+            sounds.click();
+            document.getElementById('tokenCount').innerText = userData.tokens;
+
+            const floatText = document.createElement('div');
+            floatText.innerText = "+1 💰";
+            floatText.className = 'click-coin';
+            floatText.style.left = e.clientX + 'px';
+            floatText.style.top = e.clientY + 'px';
+            document.body.appendChild(floatText);
+            setTimeout(() => floatText.remove(), 1000);
+
+            // Debounced Save (Protects database from getting blocked)
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true });
+            }, 2000); // Saves 2 seconds after the last click
+        });
+
+        // --- AUTH & CORE ---
         window.handleAuth = async (type) => {
             sounds.click(); const e = document.getElementById('email').value; const p = document.getElementById('password').value;
             try { if (type === 'signup') { const res = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [], avatarUrl: "" }); } else { await signInWithEmailAndPassword(auth, e, p); }
@@ -290,14 +325,38 @@
         };
 
         // ==========================================
-        //         CRASH-PROOF ARCADE ENGINE
+        //         NEON ARCADE ENGINE
         // ==========================================
         const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
         let gameLoop, activeGame = null, gameScore = 0, earnedCoins = 0;
         let keys = {}; 
-        window.addEventListener('keydown', e => { keys[e.code] = true; if(activeGame && e.code === 'Space') e.preventDefault(); });
+        
+        // Listen for arrows and space
+        window.addEventListener('keydown', e => { keys[e.code] = true; if(activeGame && ['Space','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); });
         window.addEventListener('keyup', e => keys[e.code] = false);
-        canvas.addEventListener('mousedown', () => { keys['Space'] = true; setTimeout(()=>keys['Space']=false, 100); });
+        
+        // Split-screen touch steering + jump
+        canvas.addEventListener('mousedown', (e) => { 
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (activeGame === 'kart') {
+                if (x < 200) keys['ArrowLeft'] = true; else keys['ArrowRight'] = true;
+            } else {
+                keys['Space'] = true; 
+            }
+        });
+        canvas.addEventListener('mouseup', () => { keys['Space'] = false; keys['ArrowLeft'] = false; keys['ArrowRight'] = false; });
+        canvas.addEventListener('touchstart', (e) => { 
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.touches[0].clientX - rect.left;
+            if (activeGame === 'kart') {
+                if (x < 200) keys['ArrowLeft'] = true; else keys['ArrowRight'] = true;
+            } else {
+                keys['Space'] = true; 
+            }
+        }, {passive: false});
+        canvas.addEventListener('touchend', () => { keys['Space'] = false; keys['ArrowLeft'] = false; keys['ArrowRight'] = false; });
 
         function drawGrid(scrollOffset = 0) {
             ctx.strokeStyle = "rgba(0, 212, 255, 0.15)"; ctx.lineWidth = 1; ctx.beginPath();
@@ -340,7 +399,56 @@
             resetGlow(); ctx.fillStyle = "white"; ctx.font = "20px Nunito"; ctx.fillText(`Tap to save +${earnedCoins} 💰`, 100, 240);
         }
 
-        window.launchGame = (gameId) => { resetGameUI(); if(gameId==='dash') startDash(); if(gameId==='flappy') startFlappy(); if(gameId==='hoops') startHoops(); if(gameId==='typer') startTyper(); };
+        window.launchGame = (gameId) => { resetGameUI(); if(gameId==='kart') startKart(); if(gameId==='dash') startDash(); if(gameId==='flappy') startFlappy(); if(gameId==='hoops') startHoops(); if(gameId==='typer') startTyper(); };
+
+        // 0. NEON KART (Arrow Keys to Steer)
+        function startKart() {
+            activeGame = 'kart'; let carX = 180, speed = 6, roadOffset = 0, obstacles = [], frame = 0;
+            function update() {
+                if(activeGame !== 'kart') return;
+                ctx.clearRect(0,0,400,400); drawGrid();
+                
+                // Scrolling Road Borders
+                roadOffset += speed;
+                setGlow("#00d4ff", 15); ctx.lineWidth = 6; ctx.beginPath();
+                for(let i = (roadOffset % 60) - 60; i < 400; i += 60) {
+                    ctx.moveTo(80, i); ctx.lineTo(80, i+30);
+                    ctx.moveTo(320, i); ctx.lineTo(320, i+30);
+                }
+                ctx.stroke(); resetGlow();
+
+                // Steer Left / Right
+                if (keys['ArrowLeft'] && carX > 90) carX -= 6;
+                if (keys['ArrowRight'] && carX < 270) carX += 6;
+
+                // Player Kart
+                ctx.font = "40px Arial"; ctx.fillText("🏎️", carX, 350);
+
+                // Obstacles & Coins
+                if(frame % 45 === 0) {
+                    let type = Math.random() > 0.6 ? 'coin' : 'barrel';
+                    obstacles.push({ x: Math.random() * 200 + 100, y: -40, type: type, passed: false });
+                }
+
+                for(let i=0; i<obstacles.length; i++) {
+                    let o = obstacles[i]; o.y += speed;
+                    
+                    if(o.type === 'coin') {
+                        setGlow("#ffd700", 15); ctx.font = "30px Arial"; ctx.fillText("🟡", o.x, o.y); resetGlow();
+                    } else {
+                        ctx.font = "30px Arial"; ctx.fillText("🛢️", o.x, o.y);
+                    }
+
+                    // Collision Check
+                    if(Math.abs(carX - o.x) < 30 && Math.abs(350 - o.y) < 30) {
+                        if(o.type === 'coin' && !o.passed) { o.passed = true; addScore(2); speed += 0.05; }
+                        else if (o.type === 'barrel') { gameOver(); return; }
+                    }
+                }
+                frame++; gameLoop = requestAnimationFrame(update);
+            }
+            update();
+        }
 
         // 1. MARIO DASH (Jump spikes, dodge rockets)
         function startDash() {
@@ -350,35 +458,26 @@
                 if(activeGame !== 'dash') return;
                 ctx.clearRect(0,0,400,400); bgScroll -= speed; drawGrid(bgScroll);
                 
-                // Floor
                 setGlow("#ff007f", 10); ctx.fillRect(0, 340, 400, 60); resetGlow();
 
                 if (keys['Space'] && !isJumping) { vY = -12; isJumping = true; sounds.jump(); }
                 vY += 0.6; charY += vY; if(charY > 280) { charY = 280; vY = 0; isJumping = false; }
 
-                // Glowing Hitbox + Mario Emoji
                 setGlow("#00d4ff", 15); ctx.fillRect(50, charY, 40, 40); resetGlow();
                 ctx.font = "30px Arial"; ctx.fillText("🍄", 50, charY + 30);
 
-                if(frame % 90 === 0) {
-                    const isFlying = Math.random() > 0.5;
-                    obstacles.push({ x: 400, isFlying: isFlying, passed: false });
-                }
+                if(frame % 90 === 0) obstacles.push({ x: 400, isFlying: Math.random() > 0.5, passed: false });
 
                 for(let i=0; i<obstacles.length; i++) {
                     let o = obstacles[i]; o.x -= speed;
-                    
                     if (o.isFlying) {
-                        // Rocket Enemy
                         setGlow("purple", 15); ctx.fillRect(o.x, 230, 40, 30); resetGlow();
                         ctx.font = "25px Arial"; ctx.fillText("🚀", o.x, 255);
                         if (o.x < 90 && o.x + 40 > 50 && charY < 260) { gameOver(); return; } 
                     } else {
-                        // Ground Spikes
                         setGlow("red", 15); ctx.beginPath(); ctx.moveTo(o.x, 340); ctx.lineTo(o.x+20, 290); ctx.lineTo(o.x+40, 340); ctx.fill(); resetGlow();
                         if (o.x < 90 && o.x + 40 > 50 && charY + 40 > 300) { gameOver(); return; } 
                     }
-
                     if(o.x < 50 && !o.passed) { o.passed = true; addScore(2); speed += 0.15; }
                 }
                 frame++; gameLoop = requestAnimationFrame(update);
@@ -399,7 +498,6 @@
                 
                 v += 0.4; y += v;
                 
-                // Glowing Hitbox + Star Emoji
                 setGlow("#00d4ff", 15); ctx.fillRect(100, y, 35, 35); resetGlow();
                 ctx.font = "30px Arial"; ctx.fillText("⭐", 100, y + 30);
 
@@ -409,8 +507,6 @@
 
                 for(let i=0; i<pipes.length; i++) {
                     let p = pipes[i]; p.x -= 3;
-                    
-                    // Warp Pipes
                     setGlow("#00ff00", 10); ctx.fillStyle = "#00cc00"; 
                     ctx.fillRect(p.x, 0, 60, p.top); ctx.fillRect(p.x - 5, p.top - 20, 70, 20); 
                     ctx.fillRect(p.x, p.bottom, 60, 400 - p.bottom); ctx.fillRect(p.x - 5, p.bottom, 70, 20); 
@@ -437,10 +533,8 @@
                 if (keys['Space'] && !isShooting) { isShooting = true; sounds.jump(); }
                 if (isShooting) ballY -= 12;
                 
-                // DK Player Base
                 ctx.font = "60px Arial"; ctx.fillText("🦍", 160, 390);
                 
-                // Glowing Pokeball Hitbox
                 setGlow("white", 20); ctx.beginPath(); ctx.arc(ballX, ballY, 15, 0, Math.PI*2); ctx.fill(); resetGlow();
                 ctx.font = "25px Arial"; ctx.fillText("🔴", ballX - 16, ballY + 8);
 
@@ -463,8 +557,7 @@
             const words = [
                 "MARIO", "GOKU", "ZELDA", "NINTENDO", "PIKACHU", "NARUTO", "VEGETA", "SMASH", "DRAGON",
                 "SCIENCE", "OXYGEN", "GRAVITY", "UNIVERSE", "GALAXY", "PLANET", "ASTRONOMY", "VOLCANO", "DINOSAUR", "FOSSIL", "ECLIPSE",
-                "MATH", "GEOMETRY", "FRACTION", "EQUATION", "MULTIPLY", "DIVIDE", "TRIANGLE", "HEXAGON", "ALGEBRA", "SYMMETRY",
-                "HISTORY", "PYRAMID", "CONTINENT", "OCEAN", "COMPASS", "LATITUDE", "EQUATOR", "INVENTION", "EXPLORE", "CASTLE"
+                "MATH", "GEOMETRY", "FRACTION", "EQUATION", "MULTIPLY", "DIVIDE", "TRIANGLE", "HEXAGON", "ALGEBRA", "SYMMETRY"
             ];
             let currentWord = "";
 
