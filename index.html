@@ -11,9 +11,10 @@
         
         #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); }
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; animation: pop 0.2s ease-out; }
+        @keyframes pop { 0% { transform: scale(0.98); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.1s; background: #00d4ff; color: #100b20; box-shadow: 0px 4px 0px #0097b2; position: relative; top: 0; }
+        .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.1s; background: #00d4ff; color: #100b20; box-shadow: 0px 4px 0px #0097b2; position: relative; top: 0; outline: none; }
         .btn:active { top: 4px; box-shadow: 0px 0px 0px transparent; }
         .btn-nav { width: 100%; margin-bottom: 5px; }
         .btn-answer { background: #ff007f; color: white; width: 100%; box-shadow: 0px 4px 0px #c20062; }
@@ -23,7 +24,7 @@
 
         #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 320px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; }
+        .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -31,7 +32,8 @@
 
     <div id="auth-overlay">
         <div class="auth-box">
-            <h1 style="font-weight:900; color:#ff007f;">PINCKET</h1>
+            <h1 style="font-weight:900; color:#ff007f; margin:0;">PINCKET</h1>
+            <p style="color:#666; font-size:14px; margin-bottom:20px;">Cloud Login</p>
             <input type="email" id="email" placeholder="Email" class="auth-input">
             <input type="password" id="password" placeholder="Password" class="auth-input">
             <button class="btn btn-nav" onclick="handleAuth('login')">Login</button>
@@ -47,22 +49,22 @@
         </div>
         <button class="btn btn-nav" onclick="switchTab('home')">🏠 Home</button>
         <button class="btn btn-nav" onclick="switchTab('play')">🎮 Play Trivia</button>
-        <button class="btn btn-nav" onclick="switchTab('market')">🛒 Pack Market</button>
-        <button class="btn btn-nav" onclick="switchTab('inventory')">🎒 My Cards</button>
+        <button class="btn btn-nav" onclick="switchTab('market')">🛒 Market</button>
+        <button class="btn btn-nav" onclick="switchTab('inventory')">🎒 Collection</button>
         <div style="flex-grow:1;"></div>
         <button class="btn" style="background:#ff4757; border:none; color:white; font-size:10px; box-shadow:none;" onclick="logout()">Logout</button>
     </div>
 
     <div id="main-content">
         <div id="homeTab" class="tab-content active">
-            <h1 style="font-size:60px; text-shadow: 4px 4px #ff007f;">Welcome Back!</h1>
-            <p style="font-size:22px; opacity:0.8; margin-bottom:40px;">Ready to earn more tokens and rare cards?</p>
+            <h1 style="font-size:60px; text-shadow: 4px 4px #ff007f; margin-bottom:10px;">Welcome Back!</h1>
+            <p style="font-size:22px; opacity:0.8; margin-bottom:40px;">Collect 'em all, one question at a time.</p>
             <button class="btn" style="padding: 25px 60px; font-size: 24px;" onclick="switchTab('play')">Start Playing</button>
         </div>
 
         <div id="playTab" class="tab-content">
             <div class="trivia-container">
-                <div id="question-text" style="font-size:26px; font-weight:900; margin-bottom:20px;">Question goes here...</div>
+                <div id="question-text" style="font-size:26px; font-weight:900; margin-bottom:20px;">Ready to Start?</div>
                 <div id="answers-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
                 <div id="trivia-feedback" style="margin-top:20px; font-weight:900; min-height:24px;"></div>
             </div>
@@ -75,7 +77,7 @@
         </div>
 
         <div id="inventoryTab" class="tab-content">
-            <h2 style="font-size:32px;">Collection</h2>
+            <h2 style="font-size:32px;">Your Collection</h2>
             <div id="inventory-list" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;"></div>
         </div>
     </div>
@@ -120,7 +122,7 @@
             pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); }
         };
 
-        // --- CLOUD & AUTH ---
+        // --- GLOBAL FUNCTIONS ---
         window.handleAuth = async (type) => {
             sounds.click();
             const email = document.getElementById('email').value;
@@ -128,7 +130,7 @@
             try {
                 if (type === 'signup') {
                     const res = await createUserWithEmailAndPassword(auth, email, password);
-                    await setDoc(doc(db, "users", res.user.uid), userData);
+                    await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [] });
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
                 }
@@ -141,17 +143,17 @@
             sounds.click();
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(t + 'Tab').classList.add('active');
-            if (t === 'play') loadQuestion(); // Only load question when they click PLAY
+            if (t === 'play') window.loadQuestion(); 
         };
 
         window.buyPack = async (type) => {
             if(userData.tokens >= 100) {
                 userData.tokens -= 100;
                 sounds.pack();
-                const pool = type === 'Anime' ? ["Goku", "Vegeta", "Naruto"] : ["Mario", "Kirby", "Link"];
+                const pool = type === 'Anime' ? ["Goku", "Vegeta", "Naruto", "Luffy"] : ["Mario", "Kirby", "Link", "Pikachu"];
                 const pull = pool[Math.floor(Math.random() * pool.length)];
                 userData.inventory.push(pull);
-                alert("Pulled: " + pull);
+                alert("NICE! You pulled: " + pull);
                 await saveToCloud();
                 updateUI();
             } else { sounds.wrong(); alert("Not enough tokens!"); }
@@ -159,34 +161,39 @@
 
         // --- TRIVIA SYSTEM ---
         const trivia = [
-            { q: "What is 9 x 9?", a: ["81", "71", "91", "89"], c: "81" },
-            { q: "Capital of France?", a: ["London", "Paris", "Berlin", "Rome"], c: "Paris" },
-            { q: "How many legs does a spider have?", a: ["6", "8", "10", "12"], c: "8" }
+            { q: "What is 11 x 11?", a: ["121", "111", "131", "122"], c: "121" },
+            { q: "Capital of Texas?", a: ["Dallas", "Houston", "Austin", "San Antonio"], c: "Austin" },
+            { q: "What is the boiling point of water?", a: ["90°C", "100°C", "110°C", "120°C"], c: "100°C" },
+            { q: "Who painted the Mona Lisa?", a: ["Van Gogh", "Da Vinci", "Picasso", "Monet"], c: "Da Vinci" }
         ];
 
-        function loadQuestion() {
+        window.loadQuestion = () => {
             const q = trivia[Math.floor(Math.random() * trivia.length)];
             document.getElementById('question-text').innerText = q.q;
             const grid = document.getElementById('answers-grid');
             grid.innerHTML = "";
-            q.a.forEach(ans => {
+            q.a.sort(() => Math.random() - 0.5).forEach(ans => {
                 const b = document.createElement('button');
                 b.className = "btn btn-answer";
                 b.innerText = ans;
-                b.onclick = () => {
+                b.onclick = async () => {
+                    const fb = document.getElementById('trivia-feedback');
                     if(ans === q.c) {
                         userData.tokens += 100; sounds.correct();
-                        document.getElementById('trivia-feedback').innerText = "CORRECT! +100";
+                        fb.innerText = "CORRECT! +100 💰";
+                        fb.style.color = "#00d4ff";
                     } else {
                         sounds.wrong();
-                        document.getElementById('trivia-feedback').innerText = "WRONG! Try another.";
+                        fb.innerText = "WRONG! Try another...";
+                        fb.style.color = "#ff007f";
                     }
-                    saveToCloud(); updateUI();
-                    setTimeout(() => { document.getElementById('trivia-feedback').innerText = ""; loadQuestion(); }, 1200);
+                    await saveToCloud();
+                    updateUI();
+                    setTimeout(() => { fb.innerText = ""; window.loadQuestion(); }, 1200);
                 };
                 grid.appendChild(b);
             });
-        }
+        };
 
         async function saveToCloud() {
             if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), userData);
@@ -194,16 +201,21 @@
 
         function updateUI() {
             document.getElementById('tokenCount').innerText = userData.tokens;
-            document.getElementById('inventory-list').innerHTML = userData.inventory.map(i => `<div class="pack" style="width:80px; padding:5px; border-width:2px;"><p style="font-size:10px;">${i}</p></div>`).join('');
+            const inv = Array.isArray(userData.inventory) ? userData.inventory : [];
+            document.getElementById('inventory-list').innerHTML = inv.map(i => `
+                <div class="pack" style="width:80px; padding:5px; border-width:2px;"><p style="font-size:10px; margin:0;">${i}</p></div>
+            `).join('');
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-overlay').classList.add('hidden');
                 const docSnap = await getDoc(doc(db, "users", user.uid));
-                if (docSnap.exists()) userData = docSnap.data();
+                if (docSnap.exists()) {
+                    userData = docSnap.data();
+                    if (!Array.isArray(userData.inventory)) userData.inventory = [];
+                }
                 updateUI();
-                // NO loadQuestion() here! We wait for them to click Play.
             } else {
                 document.getElementById('auth-overlay').classList.remove('hidden');
             }
