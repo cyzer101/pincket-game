@@ -6,7 +6,7 @@
     <div style="background:#222; padding:30px; border-radius:15px; display:inline-block;">
         <input type="email" id="email" placeholder="Admin Email" style="padding:10px; margin:5px;"><br>
         <input type="password" id="password" placeholder="Password" style="padding:10px; margin:5px;"><br>
-        <button onclick="sync()" style="padding:15px 30px; margin:20px; cursor:pointer; background:#00d4ff; font-weight:bold; border:none; border-radius:8px;">🚀 Sync Stable Data</button>
+        <button onclick="sync()" style="padding:15px 30px; margin:20px; cursor:pointer; background:#00d4ff; font-weight:bold; border:none; border-radius:8px;">🚀 Sync 52-Card Deck</button>
         <div id="status">Status: Waiting...</div>
     </div>
 
@@ -20,13 +20,62 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // STABLE IMAGE SOURCES
         const cards = [
-            { id: "goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" }, // Placeholder for testing if block persists
-            { id: "naruto", name: "Naruto", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/9a/NarutoUzuzmaki.png" },
-            { id: "vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/f/f6/Vegeta_Dragon_Ball.jpg" },
-            { id: "mario", name: "Mario", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/s/super-mario-odyssey-switch/hero" },
-            { id: "kirby", name: "Kirby", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/k/kirby-and-the-forgotten-land-switch/hero" }
+            // NINTENDO PACK
+            { id: "nin_mario", name: "Mario", packType: "Nintendo", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/a9/Mario_NSMBU.png" },
+            { id: "nin_luigi", name: "Luigi", packType: "Nintendo", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/7/73/Luigi_NSMBU.png" },
+            { id: "nin_peach", name: "Peach", packType: "Nintendo", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/1/16/Princess_Peach_Stock_Art.png" },
+            { id: "nin_bowser", name: "Bowser", packType: "Nintendo", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/92/Bowser_Stock_Art_2021.png" },
+            { id: "nin_yoshi", name: "Yoshi", packType: "Nintendo", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/3/39/YoshiMarioParty10.png" },
+            { id: "nin_toad", name: "Toad", packType: "Nintendo", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/d/d1/Toad_3D_Land.png" },
+            { id: "nin_dk", name: "Donkey Kong", packType: "Nintendo", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/c/cd/Donkey_Kong_in_Super_Mario_Odyssey.png" },
+            { id: "nin_link", name: "Link", packType: "Nintendo", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/7/7d/Link_brawl.png" },
+            { id: "nin_zelda", name: "Zelda", packType: "Nintendo", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/2/25/Zelda_SSBU.png" },
+            { id: "nin_ganon", name: "Ganondorf", packType: "Nintendo", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/8/82/Ganondorf_SSBU.png" },
+            { id: "nin_samus", name: "Samus", packType: "Nintendo", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/ab/Samus_Aran_Metroid_Dread.png" },
+            { id: "nin_kirby", name: "Kirby", packType: "Nintendo", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/2/2d/Kirby_Cloud.png" },
+            { id: "nin_dedede", name: "King Dedede", packType: "Nintendo", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/a2/King_Dedede_SSBU.png" },
+            { id: "nin_metaknight", name: "Meta Knight", packType: "Nintendo", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/0/07/Meta_Knight.png" },
+            { id: "nin_fox", name: "Fox", packType: "Nintendo", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/0/0b/Fox_McCloud.png" },
+            { id: "nin_falcon", name: "Captain Falcon", packType: "Nintendo", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/7/77/Captain_Falcon_SSBU.png" },
+            { id: "nin_bulbasaur", name: "Bulbasaur", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" },
+            { id: "nin_charmander", name: "Charmander", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" },
+            { id: "nin_squirtle", name: "Squirtle", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png" },
+            { id: "nin_pikachu", name: "Pikachu", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" },
+            { id: "nin_jigglypuff", name: "Jigglypuff", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/39.png" },
+            { id: "nin_gengar", name: "Gengar", packType: "Nintendo", rarity: 2, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/94.png" },
+            { id: "nin_snorlax", name: "Snorlax", packType: "Nintendo", rarity: 2, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/143.png" },
+            { id: "nin_charizard", name: "Charizard", packType: "Nintendo", rarity: 3, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" },
+            { id: "nin_mewtwo", name: "Mewtwo", packType: "Nintendo", rarity: 3, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png" },
+            { id: "nin_lugia", name: "Lugia", packType: "Nintendo", rarity: 3, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/249.png" },
+
+            // ANIME PACK
+            { id: "ani_goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/af/Son_Goku_YoungAdult.PNG" },
+            { id: "ani_vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/f/f6/Vegeta_Dragon_Ball.jpg" },
+            { id: "ani_gohan", name: "Gohan", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/7/7b/Gohan.png" },
+            { id: "ani_piccolo", name: "Piccolo", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/3/30/Piccolo_Dragon_Ball.png" },
+            { id: "ani_trunks", name: "Future Trunks", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/6/69/Trunks_DBZ.png" },
+            { id: "ani_frieza", name: "Frieza", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/90/Frieza_Dragon_Ball.jpg" },
+            { id: "ani_cell", name: "Perfect Cell", packType: "Anime", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/99/Cell_Dragon_Ball.jpg" },
+            { id: "ani_buu", name: "Majin Buu", packType: "Anime", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/1/18/Majin_Buu.jpg" },
+            { id: "ani_broly", name: "Broly", packType: "Anime", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/d/dd/Broly_Dragon_Ball.jpg" },
+            { id: "ani_naruto", name: "Naruto", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/9a/NarutoUzuzmaki.png" },
+            { id: "ani_sasuke", name: "Sasuke", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/e/e0/Sasuke_Uchiha_Shippuden.png" },
+            { id: "ani_sakura", name: "Sakura", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/1/13/SakuraHaruno.jpg" },
+            { id: "ani_kakashi", name: "Kakashi", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/4/4b/Kakashi_Hatake.png" },
+            { id: "ani_gaara", name: "Gaara", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/e/eb/Gaara_Naruto.jpg" },
+            { id: "ani_shikamaru", name: "Shikamaru", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/a2/Shikamaru_Nara.jpg" },
+            { id: "ani_hinata", name: "Hinata", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/6/64/Hinata_Hyuga.jpg" },
+            { id: "ani_jiraiya", name: "Jiraiya", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/5/52/Jiraiya_Naruto.png" },
+            { id: "ani_itachi", name: "Itachi", packType: "Anime", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/a1/Itachi_Uchiha.jpg" },
+            { id: "ani_minato", name: "Minato", packType: "Anime", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/1/13/Minato_Namikaze.jpg" },
+            { id: "ani_luffy", name: "Luffy", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/a4/Monkey_D._Luffy.png" },
+            { id: "ani_zoro", name: "Zoro", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/a4/Roronoa_Zoro.jpg" },
+            { id: "ani_sanji", name: "Sanji", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/0/00/Sanji_One_Piece.jpg" },
+            { id: "ani_deku", name: "Deku", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/3/36/Izuku_Midoriya.png" },
+            { id: "ani_bakugo", name: "Bakugo", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/4/4c/Katsuki_Bakugo.png" },
+            { id: "ani_allmight", name: "All Might", packType: "Anime", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/1/1b/All_Might.png" },
+            { id: "ani_saitama", name: "Saitama", packType: "Anime", rarity: 3, imageUrl: "https://upload.wikimedia.org/wikipedia/en/c/c3/Saitama_One_Punch_Man.png" }
         ];
 
         const questions = [
