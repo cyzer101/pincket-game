@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pincket Admin: Question Uploader</title>
+    <title>Pincket Admin: Secure Uploader</title>
     <style>
         body { font-family: sans-serif; background: #111; color: white; padding: 40px; text-align: center; }
-        .btn { background: #00d4ff; color: #111; padding: 15px 30px; font-size: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn { background: #00d4ff; color: #111; padding: 15px 30px; font-size: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
         .btn:hover { background: #ff007f; color: white; }
+        input { padding: 12px; font-size: 16px; margin: 5px; border-radius: 5px; border: none; width: 250px; text-align: center; }
         #status { margin-top: 20px; font-size: 18px; color: #ff007f; }
     </style>
 </head>
 <body>
 
-    <h1>Question Database Uploader</h1>
-    <p>Click the button below to push the trivia deck to Firestore.</p>
+    <h1>Secure Question Uploader</h1>
+    <p>Log in with your game account so Firebase knows it's you.</p>
     
-    <button class="btn" onclick="uploadQuestions()">🧠 Upload Questions to Cloud</button>
+    <input type="email" id="email" placeholder="Your Game Email"><br>
+    <input type="password" id="password" placeholder="Your Password"><br>
+    
+    <button class="btn" onclick="uploadQuestions()">🔐 Login & Upload Questions</button>
     
     <div id="status">Waiting...</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3BQO2283K_FSIsu-oaxEAEH5lutv5AuA",
@@ -33,8 +38,9 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        // --- THE QUESTION LIST ---
+        // --- THE QUESTION DECK ---
         const questionDeck = [
             // MATH
             { id: "q_math_1", q: "What is 8 x 7?", a: ["54", "56", "64", "48"], c: "56" },
@@ -55,7 +61,7 @@
             { id: "q_his_3", q: "What is the smallest continent?", a: ["Europe", "Antarctica", "Australia", "South America"], c: "Australia" },
             { id: "q_his_4", q: "Who was the primary author of the Declaration of Independence?", a: ["George Washington", "Thomas Jefferson", "Benjamin Franklin", "John Adams"], c: "Thomas Jefferson" },
             
-            // ANIME & NINTENDO (The Hook)
+            // POP CULTURE
             { id: "q_pop_1", q: "What is the name of Goku's signature blue energy attack?", a: ["Special Beam Cannon", "Kamehameha", "Final Flash", "Spirit Bomb"], c: "Kamehameha" },
             { id: "q_pop_2", q: "Which Pokémon is #001 in the Pokédex?", a: ["Pikachu", "Bulbasaur", "Charmander", "Squirtle"], c: "Bulbasaur" },
             { id: "q_pop_3", q: "What is the name of Link's legendary sword?", a: ["Excalibur", "Master Sword", "Zelda Blade", "Lightbringer"], c: "Master Sword" },
@@ -65,7 +71,7 @@
             { id: "q_pop_7", q: "What is the name of the main dragon in Dragon Ball Z?", a: ["Shenron", "Porunga", "Rayquaza", "Tiamat"], c: "Shenron" },
             { id: "q_pop_8", q: "Which Nintendo console featured 'Wii Sports'?", a: ["GameCube", "Wii", "N64", "Switch"], c: "Wii" },
             
-            // GENERAL KNOWLEDGE
+            // GENERAL
             { id: "q_gen_1", q: "What is the capital of France?", a: ["Berlin", "London", "Paris", "Madrid"], c: "Paris" },
             { id: "q_gen_2", q: "What is the boiling point of water in Celsius?", a: ["90°C", "100°C", "110°C", "120°C"], c: "100°C" },
             { id: "q_gen_3", q: "How many states are in the USA?", a: ["48", "50", "52", "49"], c: "50" },
@@ -74,9 +80,21 @@
 
         window.uploadQuestions = async () => {
             const statusDiv = document.getElementById('status');
-            statusDiv.innerText = "Uploading questions... please wait.";
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                statusDiv.innerText = "❌ Please type in your email and password first!";
+                return;
+            }
+
+            statusDiv.innerText = "Authenticating & Uploading... please wait.";
             
             try {
+                // 1. Log in to bypass the Firebase bouncer
+                await signInWithEmailAndPassword(auth, email, password);
+
+                // 2. Blast the questions into the database
                 let count = 0;
                 for (const item of questionDeck) {
                     await setDoc(doc(db, "questions", item.id), {
