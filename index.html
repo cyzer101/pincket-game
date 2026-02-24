@@ -30,6 +30,7 @@
         .card-inner.is-flipped { transform: rotateY(180deg); }
         .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
         .card-front { background: linear-gradient(45deg, #ff007f, #00d4ff); }
+        .card-front::after { content: "PINCKET"; font-size: 32px; font-weight: 900; color: white; text-shadow: 3px 3px 0px #100b20; }
         .card-back { background: #fff; color: #100b20; transform: rotateY(180deg); flex-direction: column; padding: 15px; box-sizing: border-box; }
         .card-img { width: 100%; height: 70%; object-fit: contain; border-radius: 10px; }
         .rarity-label { font-size: 14px; font-weight: 900; background: #100b20; color: white; padding: 4px 12px; border-radius: 12px; margin-top: 10px; }
@@ -40,16 +41,30 @@
         .inv-card img { width: 100%; height: 90px; object-fit: contain; }
         .card-btn { font-size:11px; font-weight:bold; padding:6px; cursor:pointer; border-radius:6px; width:100%; transition:0.2s; margin-top: 5px; border: 2px solid; }
 
-        /* Arcade Styles */
+        /* --- ARCADE UI & NEON STYLING --- */
         .arcade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px; margin: 0 auto; }
         .arcade-btn { background: #231245; border: 4px solid #00d4ff; border-radius: 15px; padding: 30px; cursor: pointer; color: white; transition: 0.2s; box-shadow: 4px 4px 0px #00d4ff; }
         .arcade-btn:hover { transform: translateY(-5px); box-shadow: 4px 9px 0px #00d4ff; }
         .arcade-btn h3 { margin: 10px 0 0 0; font-size: 24px; color: #ff007f; }
         
-        #game-modal { position: fixed; inset: 0; background: #100b20; z-index: 400; display: none; flex-direction: column; align-items: center; padding-top: 50px; }
-        canvas { background: #000; border: 5px solid #ff007f; border-radius: 10px; box-shadow: 0 0 20px #ff007f; }
-        #game-ui { display: flex; justify-content: space-between; width: 400px; margin-bottom: 10px; font-size: 24px; font-weight: bold; }
-        #typer-input { font-size: 30px; text-align: center; padding: 10px; text-transform: uppercase; width: 300px; font-family: 'Nunito', sans-serif; font-weight: 900; border: 4px solid #00d4ff; border-radius: 10px; outline: none; margin-top: 20px; display: none; }
+        #game-modal { position: fixed; inset: 0; background: rgba(16, 11, 32, 0.95); z-index: 400; display: none; flex-direction: column; align-items: center; padding-top: 50px; }
+        
+        canvas { background: #05020a; border: 4px solid #00d4ff; border-radius: 10px; animation: neon-pulse 1.5s infinite alternate; }
+        @keyframes neon-pulse {
+            0% { box-shadow: 0 0 10px #00d4ff, inset 0 0 10px #00d4ff; border-color: #00d4ff; }
+            100% { box-shadow: 0 0 30px #ff007f, inset 0 0 20px #ff007f; border-color: #ff007f; }
+        }
+
+        #game-ui { display: flex; justify-content: space-between; width: 400px; margin-bottom: 10px; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 0px #000; }
+        
+        #typer-word { font-size: 45px; color: #fff; letter-spacing: 5px; display: none; margin: 0; text-shadow: 0 0 10px #fff, 0 0 20px #00d4ff; }
+        #typer-input { 
+            font-size: 30px; text-align: center; padding: 15px; text-transform: uppercase; width: 350px; 
+            font-family: 'Courier New', Courier, monospace; font-weight: 900; 
+            background: #0a0514; color: #00ff00; border: 4px solid #00ff00; border-radius: 10px; 
+            outline: none; margin-top: 20px; display: none; box-shadow: 0 0 20px #00ff00; text-shadow: 0 0 5px #00ff00;
+        }
+        #typer-input::placeholder { color: rgba(0, 255, 0, 0.3); }
 
         #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 500; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 340px; text-align: center; }
@@ -78,11 +93,11 @@
             <span style="color: #00d4ff;">SCORE: <span id="game-score">0</span></span>
             <span style="color: #ff007f;">COINS: +<span id="game-coins">0</span></span>
         </div>
-        <h2 id="typer-word" style="font-size: 40px; color: #fff; letter-spacing: 5px; display: none; margin: 0;">WORD</h2>
-        <input type="text" id="typer-input" placeholder="TYPE HERE..." autocomplete="off">
+        <h2 id="typer-word">WORD</h2>
+        <input type="text" id="typer-input" placeholder="TERMINAL..." autocomplete="off">
         <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <p id="game-instructions" style="opacity: 0.7; margin-top: 15px;">Tap or Spacebar to Play</p>
-        <button class="btn" style="margin-top: 20px; background: red; color: white;" onclick="quitGame()">Quit & Save Coins</button>
+        <p id="game-instructions" style="opacity: 0.8; margin-top: 15px; font-size: 18px;">Tap or Spacebar to Play</p>
+        <button class="btn" style="margin-top: 20px; background: red; color: white; border: none;" onclick="quitGame()">Quit & Save Coins</button>
     </div>
 
     <div id="auth-overlay">
@@ -127,25 +142,25 @@
         </div>
 
         <div id="arcadeTab" class="tab-content">
-            <h2 style="font-size:36px; margin-bottom: 30px;">Neon Arcade</h2>
+            <h2 style="font-size:36px; margin-bottom: 30px;">Nintendo Arcade</h2>
             <div class="arcade-grid">
                 <div class="arcade-btn" onclick="launchGame('dash')">
-                    <div style="font-size: 50px;">🟩</div>
-                    <h3>Neon Dash</h3>
-                    <p>Jump the spikes. (+2 💰)</p>
+                    <div style="font-size: 50px; text-shadow: 0 0 15px #00d4ff;">🍄</div>
+                    <h3>Mario Dash</h3>
+                    <p>Dodge spikes & bills. (+2 💰)</p>
                 </div>
                 <div class="arcade-btn" onclick="launchGame('flappy')">
-                    <div style="font-size: 50px;">🦅</div>
-                    <h3>Flappy Cube</h3>
-                    <p>Dodge the pipes. (+3 💰)</p>
+                    <div style="font-size: 50px; text-shadow: 0 0 15px #00d4ff;">⭐</div>
+                    <h3>Flappy Kirby</h3>
+                    <p>Dodge warp pipes. (+3 💰)</p>
                 </div>
                 <div class="arcade-btn" onclick="launchGame('hoops')">
-                    <div style="font-size: 50px;">🏀</div>
-                    <h3>Cyber Hoops</h3>
-                    <p>Time your shot. (+5 💰)</p>
+                    <div style="font-size: 50px; text-shadow: 0 0 15px #00d4ff;">🦍</div>
+                    <h3>DK Hoops</h3>
+                    <p>Shoot the Pokéball. (+5 💰)</p>
                 </div>
                 <div class="arcade-btn" onclick="launchGame('typer')">
-                    <div style="font-size: 50px;">⌨️</div>
+                    <div style="font-size: 50px; text-shadow: 0 0 15px #00d4ff;">⌨️</div>
                     <h3>Hacker Typer</h3>
                     <p>Type fast. (+5 💰)</p>
                 </div>
@@ -207,7 +222,6 @@
             crash: () => { playNote(150, 'sawtooth', 0.2); setTimeout(() => playNote(100, 'sawtooth', 0.3), 100); }
         };
 
-        // --- AUTH & CORE ---
         window.handleAuth = async (type) => {
             sounds.click(); const e = document.getElementById('email').value; const p = document.getElementById('password').value;
             try { if (type === 'signup') { const res = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [], avatarUrl: "" }); } else { await signInWithEmailAndPassword(auth, e, p); }
@@ -221,7 +235,6 @@
         async function fetchGameData() { try { const qSnap = await getDocs(collection(db, "questions")); cloudTrivia = qSnap.docs.map(d => d.data()); const cSnap = await getDocs(collection(db, "cards")); cloudCards = cSnap.docs.map(d => d.data()); } catch(e) { console.error(e); } }
         async function saveToCloud() { if(auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true }); }
 
-        // --- MARKET & INVENTORY ---
         window.buyPack = async (type) => {
             if(userData.tokens >= 100) {
                 userData.tokens -= 100; sounds.pack();
@@ -263,7 +276,6 @@
                 </div>`).join('');
         };
 
-        // --- TRIVIA ---
         window.loadQuestion = () => {
             if (!cloudTrivia.length) return; const q = cloudTrivia[Math.floor(Math.random() * cloudTrivia.length)];
             document.getElementById('question-text').innerText = q.q; const grid = document.getElementById('answers-grid'); grid.innerHTML = "";
@@ -278,7 +290,7 @@
         };
 
         // ==========================================
-        //         ARCADE ENGINE (HTML5 CANVAS)
+        //         NINTENDO ARCADE ENGINE
         // ==========================================
         const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
         let gameLoop, activeGame = null, gameScore = 0, earnedCoins = 0;
@@ -286,6 +298,21 @@
         window.addEventListener('keydown', e => { keys[e.code] = true; if(activeGame && e.code === 'Space') e.preventDefault(); });
         window.addEventListener('keyup', e => keys[e.code] = false);
         canvas.addEventListener('mousedown', () => { keys['Space'] = true; setTimeout(()=>keys['Space']=false, 100); });
+
+        // Load Character Sprites
+        const imgMario = new Image(); imgMario.src = "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/a/a9/Mario_NSMBU.png";
+        const imgKirby = new Image(); imgKirby.src = "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/2/2d/Kirby_Cloud.png";
+        const imgDK = new Image(); imgDK.src = "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/c/cd/Donkey_Kong_in_Super_Mario_Odyssey.png";
+        const imgPoke = new Image(); imgPoke.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+
+        function drawGrid(scrollOffset = 0) {
+            ctx.strokeStyle = "rgba(0, 212, 255, 0.15)"; ctx.lineWidth = 1; ctx.beginPath();
+            for(let i=0; i<400; i+=40) { ctx.moveTo(0, i); ctx.lineTo(400, i); }
+            for(let i=(scrollOffset % 40) - 40; i<400; i+=40) { ctx.moveTo(i, 0); ctx.lineTo(i, 400); }
+            ctx.stroke();
+        }
+        function setGlow(color, blurLevel) { ctx.shadowBlur = blurLevel; ctx.shadowColor = color; ctx.fillStyle = color; ctx.strokeStyle = color; }
+        function resetGlow() { ctx.shadowBlur = 0; }
 
         function resetGameUI() {
             document.getElementById('game-modal').style.display = 'flex';
@@ -299,8 +326,7 @@
         }
 
         window.quitGame = async () => {
-            if(gameLoop) cancelAnimationFrame(gameLoop);
-            activeGame = null;
+            if(gameLoop) cancelAnimationFrame(gameLoop); activeGame = null;
             document.getElementById('game-modal').style.display = 'none';
             if (earnedCoins > 0) { userData.tokens += earnedCoins; await saveToCloud(); window.updateUI(); }
             sounds.click();
@@ -314,151 +340,146 @@
         }
 
         function gameOver() {
-            activeGame = null;
-            sounds.crash();
-            ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(0,0,400,400);
-            ctx.fillStyle = "red"; ctx.font = "40px Nunito"; ctx.fillText("GAME OVER", 80, 200);
-            ctx.fillStyle = "white"; ctx.font = "20px Nunito"; ctx.fillText(`Tap to save +${earnedCoins} 💰`, 100, 240);
+            activeGame = null; sounds.crash(); resetGlow();
+            ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,400,400);
+            setGlow("#ff007f", 20); ctx.font = "bold 40px Nunito"; ctx.fillText("GAME OVER", 80, 200);
+            resetGlow(); ctx.fillStyle = "white"; ctx.font = "20px Nunito"; ctx.fillText(`Tap to save +${earnedCoins} 💰`, 100, 240);
         }
 
-        window.launchGame = (gameId) => {
-            resetGameUI();
-            if(gameId === 'dash') startDash();
-            if(gameId === 'flappy') startFlappy();
-            if(gameId === 'hoops') startHoops();
-            if(gameId === 'typer') startTyper();
-        };
+        window.launchGame = (gameId) => { resetGameUI(); if(gameId==='dash') startDash(); if(gameId==='flappy') startFlappy(); if(gameId==='hoops') startHoops(); if(gameId==='typer') startTyper(); };
 
-        // 1. NEON DASH
+        // 1. MARIO DASH (Jump spikes, duck under bills)
         function startDash() {
-            activeGame = 'dash'; let cubeY = 300, vY = 0, isJumping = false, spikes = [];
-            let frame = 0, speed = 5;
+            activeGame = 'dash'; let charY = 280, vY = 0, isJumping = false, obstacles = [];
+            let frame = 0, speed = 5, bgScroll = 0;
             function update() {
                 if(activeGame !== 'dash') return;
-                ctx.clearRect(0,0,400,400);
+                ctx.clearRect(0,0,400,400); bgScroll -= speed; drawGrid(bgScroll);
                 
                 // Floor
-                ctx.fillStyle = "#ff007f"; ctx.fillRect(0, 340, 400, 60);
+                setGlow("#ff007f", 10); ctx.fillRect(0, 340, 400, 60); resetGlow();
 
-                // Jump logic
                 if (keys['Space'] && !isJumping) { vY = -12; isJumping = true; sounds.jump(); }
-                vY += 0.6; cubeY += vY;
-                if(cubeY > 300) { cubeY = 300; vY = 0; isJumping = false; }
+                vY += 0.6; charY += vY; if(charY > 280) { charY = 280; vY = 0; isJumping = false; }
 
-                // Cube
-                ctx.fillStyle = "#00d4ff"; ctx.fillRect(50, cubeY, 40, 40);
+                // Draw Mario
+                if (imgMario.complete) { ctx.drawImage(imgMario, 50, charY, 60, 60); } 
+                else { setGlow("#00d4ff", 15); ctx.fillRect(50, charY, 50, 60); resetGlow(); }
 
-                // Spikes
-                if(frame % 90 === 0) spikes.push({x: 400, passed: false});
-                for(let i=0; i<spikes.length; i++) {
-                    let s = spikes[i]; s.x -= speed;
-                    ctx.fillStyle = "red"; 
-                    ctx.beginPath(); ctx.moveTo(s.x, 340); ctx.lineTo(s.x+20, 300); ctx.lineTo(s.x+40, 340); ctx.fill();
+                // Obstacles (Mix of Spikes and Flying Bills)
+                if(frame % 90 === 0) {
+                    const isFlying = Math.random() > 0.5;
+                    obstacles.push({ x: 400, isFlying: isFlying, passed: false });
+                }
+
+                for(let i=0; i<obstacles.length; i++) {
+                    let o = obstacles[i]; o.x -= speed;
                     
-                    // Collision
-                    if (s.x < 90 && s.x + 40 > 50 && cubeY + 40 > 300) { gameOver(); return; }
-                    // Score
-                    if(s.x < 50 && !s.passed) { s.passed = true; addScore(2); speed += 0.1; }
+                    if (o.isFlying) {
+                        // Flying obstacle (Bullet Bill)
+                        setGlow("purple", 15); ctx.fillRect(o.x, 230, 40, 30); resetGlow();
+                        if (o.x < 100 && o.x + 40 > 50 && charY < 260) { gameOver(); return; } // Hit if jumping
+                    } else {
+                        // Ground Spikes
+                        setGlow("red", 15); ctx.beginPath(); ctx.moveTo(o.x, 340); ctx.lineTo(o.x+20, 290); ctx.lineTo(o.x+40, 340); ctx.fill(); resetGlow();
+                        if (o.x < 100 && o.x + 40 > 50 && charY + 60 > 300) { gameOver(); return; } // Hit if grounded
+                    }
+
+                    if(o.x < 50 && !o.passed) { o.passed = true; addScore(2); speed += 0.15; }
                 }
                 frame++; gameLoop = requestAnimationFrame(update);
             }
             update();
         }
 
-        // 2. FLAPPY CUBE
+        // 2. FLAPPY KIRBY (Green Warp Pipes)
         function startFlappy() {
-            activeGame = 'flappy'; let y = 200, v = 0, pipes = [], frame = 0;
+            activeGame = 'flappy'; let y = 200, v = 0, pipes = [], frame = 0, bgScroll = 0;
             let spacePressed = false;
             function update() {
                 if(activeGame !== 'flappy') return;
-                ctx.clearRect(0,0,400,400);
+                ctx.clearRect(0,0,400,400); bgScroll -= 3; drawGrid(bgScroll);
 
-                // Controls
                 if (keys['Space'] && !spacePressed) { v = -7; spacePressed = true; sounds.jump(); }
                 if (!keys['Space']) spacePressed = false;
                 
                 v += 0.4; y += v;
-                ctx.fillStyle = "#00d4ff"; ctx.fillRect(100, y, 30, 30);
+                
+                // Draw Kirby
+                if(imgKirby.complete) { ctx.drawImage(imgKirby, 90, y, 50, 50); }
+                else { setGlow("#00d4ff", 15); ctx.fillRect(100, y, 40, 40); resetGlow(); }
 
                 if(y > 400 || y < 0) { gameOver(); return; }
 
-                if(frame % 100 === 0) {
-                    let gapY = Math.random() * 200 + 50;
-                    pipes.push({x: 400, top: gapY, bottom: gapY + 120, passed: false});
-                }
+                if(frame % 100 === 0) { let gapY = Math.random() * 200 + 50; pipes.push({x: 400, top: gapY, bottom: gapY + 130, passed: false}); }
 
                 for(let i=0; i<pipes.length; i++) {
                     let p = pipes[i]; p.x -= 3;
-                    ctx.fillStyle = "#ff007f";
-                    ctx.fillRect(p.x, 0, 50, p.top);
-                    ctx.fillRect(p.x, p.bottom, 50, 400 - p.bottom);
+                    
+                    // Warp Pipes
+                    setGlow("#00ff00", 10); ctx.fillStyle = "#00cc00"; 
+                    ctx.fillRect(p.x, 0, 60, p.top); // Top pipe
+                    ctx.fillRect(p.x - 5, p.top - 20, 70, 20); // Top pipe cap
+                    
+                    ctx.fillRect(p.x, p.bottom, 60, 400 - p.bottom); // Bottom pipe
+                    ctx.fillRect(p.x - 5, p.bottom, 70, 20); // Bottom pipe cap
+                    resetGlow();
 
-                    // Collision
-                    if(p.x < 130 && p.x + 50 > 100) {
-                        if(y < p.top || y + 30 > p.bottom) { gameOver(); return; }
-                    }
-                    if(p.x < 100 && !p.passed) { p.passed = true; addScore(3); }
+                    if(p.x < 140 && p.x + 60 > 90) { if(y < p.top || y + 50 > p.bottom) { gameOver(); return; } }
+                    if(p.x < 90 && !p.passed) { p.passed = true; addScore(3); }
                 }
                 frame++; gameLoop = requestAnimationFrame(update);
             }
             update();
         }
 
-        // 3. CYBER HOOPS
+        // 3. DK HOOPS (Throwing Pokeballs)
         function startHoops() {
-            activeGame = 'hoops'; 
-            let hoopX = 150, dir = 3, ballY = 350, ballX = 200, isShooting = false;
+            activeGame = 'hoops'; let hoopX = 150, dir = 3, ballY = 320, ballX = 200, isShooting = false;
             function update() {
                 if(activeGame !== 'hoops') return;
-                ctx.clearRect(0,0,400,400);
+                ctx.clearRect(0,0,400,400); drawGrid();
 
-                // Hoop
-                hoopX += dir;
-                if(hoopX < 0 || hoopX > 320) dir *= -1;
-                ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 5;
-                ctx.strokeRect(hoopX, 50, 80, 10);
+                hoopX += dir; if(hoopX < 0 || hoopX > 320) dir *= -1;
+                setGlow("#ff007f", 15); ctx.lineWidth = 5; ctx.strokeRect(hoopX, 50, 80, 10); resetGlow();
 
-                // Ball
                 if (keys['Space'] && !isShooting) { isShooting = true; sounds.jump(); }
-                if (isShooting) ballY -= 10;
+                if (isShooting) ballY -= 12;
                 
-                ctx.fillStyle = "#ffaa00";
-                ctx.beginPath(); ctx.arc(ballX, ballY, 15, 0, Math.PI*2); ctx.fill();
+                // Draw DK at bottom
+                if(imgDK.complete) ctx.drawImage(imgDK, 160, 310, 80, 80);
+                
+                // Draw Pokeball
+                if(imgPoke.complete) { ctx.drawImage(imgPoke, ballX - 15, ballY - 15, 30, 30); }
+                else { setGlow("white", 20); ctx.beginPath(); ctx.arc(ballX, ballY, 15, 0, Math.PI*2); ctx.fill(); resetGlow(); }
 
-                // Check Score
                 if (ballY < 60) {
-                    if (ballX > hoopX && ballX < hoopX + 80) { addScore(5); dir += (dir > 0 ? 0.5 : -0.5); } 
-                    else { sounds.wrong(); }
-                    isShooting = false; ballY = 350;
+                    if (ballX > hoopX && ballX < hoopX + 80) { addScore(5); dir += (dir > 0 ? 0.8 : -0.8); } else { sounds.wrong(); }
+                    isShooting = false; ballY = 320;
                 }
                 gameLoop = requestAnimationFrame(update);
             }
             update();
         }
 
-        // 4. HACKER TYPER
+        // 4. HACKER TYPER (MEGA DICTIONARY)
         function startTyper() {
             activeGame = 'typer';
             document.getElementById('gameCanvas').style.display = 'none';
-            const wordEl = document.getElementById('typer-word');
-            const inputEl = document.getElementById('typer-input');
+            const wordEl = document.getElementById('typer-word'); const inputEl = document.getElementById('typer-input');
             wordEl.style.display = 'block'; inputEl.style.display = 'block';
             
-            const words = ["MARIO", "GOKU", "ZELDA", "NINTENDO", "PIKACHU", "SCIENCE", "MATH", "ANIME", "KIRBY", "NARUTO", "VEGETA", "SMASH", "DRAGON"];
+            const words = [
+                "MARIO", "GOKU", "ZELDA", "NINTENDO", "PIKACHU", "NARUTO", "VEGETA", "SMASH", "DRAGON",
+                "SCIENCE", "OXYGEN", "GRAVITY", "UNIVERSE", "GALAXY", "PLANET", "ASTRONOMY", "VOLCANO", "DINOSAUR", "FOSSIL", "ECLIPSE",
+                "MATH", "GEOMETRY", "FRACTION", "EQUATION", "MULTIPLY", "DIVIDE", "TRIANGLE", "HEXAGON", "ALGEBRA", "SYMMETRY",
+                "HISTORY", "PYRAMID", "CONTINENT", "OCEAN", "COMPASS", "LATITUDE", "EQUATOR", "INVENTION", "EXPLORE", "CASTLE"
+            ];
             let currentWord = "";
 
-            function newWord() {
-                currentWord = words[Math.floor(Math.random() * words.length)];
-                wordEl.innerText = currentWord;
-                inputEl.value = "";
-            }
+            function newWord() { currentWord = words[Math.floor(Math.random() * words.length)]; wordEl.innerText = currentWord; inputEl.value = ""; }
 
-            inputEl.oninput = (e) => {
-                if (e.target.value.toUpperCase() === currentWord) {
-                    addScore(5); newWord();
-                }
-            };
-            
+            inputEl.oninput = (e) => { if (e.target.value.toUpperCase() === currentWord) { addScore(5); newWord(); } };
             newWord(); inputEl.focus();
         }
 
@@ -470,7 +491,11 @@
                     userData = ds.data(); 
                     if (!Array.isArray(userData.inventory)) userData.inventory = [];
                     let updated = false;
-                    userData.inventory.forEach(c => { if(!c.instanceId) { c.instanceId = Date.now() + Math.random(); updated = true; } });
+                    userData.inventory.forEach(c => { 
+                        if(!c.instanceId) { c.instanceId = Date.now() + Math.random(); updated = true; } 
+                        const masterCard = cloudCards.find(mc => mc.id === c.id);
+                        if(masterCard && c.imageUrl !== masterCard.imageUrl) { c.imageUrl = masterCard.imageUrl; updated = true; }
+                    });
                     if(updated) saveToCloud();
                     if (!userData.avatarUrl) userData.avatarUrl = ""; 
                 }
