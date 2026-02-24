@@ -1,78 +1,122 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pincket</title>
+    <title>Pincket: Ultimate Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
         body { font-family: 'Nunito', sans-serif; margin: 0; background: #100b20; color: white; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Layout & Sidebar */
         #sidebar { width: 260px; background: #231245; border-right: 5px solid #ff007f; padding: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
         .profile-card { background: #100b20; border: 3px solid #00d4ff; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 4px 4px 0px #00d4ff; }
         #main-content { flex-grow: 1; padding: 40px; overflow-y: auto; text-align: center; background: radial-gradient(circle, #1b1448 0%, #100b20 100%); }
+        
+        /* Tabs */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: pop 0.2s ease-out; }
         @keyframes pop { 0% { transform: scale(0.98); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Buttons & UI */
         .btn { padding: 12px 20px; font-size: 16px; cursor: pointer; border: 3px solid #fff; border-radius: 8px; font-weight: 900; text-transform: uppercase; transition: 0.1s; background: #00d4ff; color: #100b20; box-shadow: 0px 4px 0px #0097b2; position: relative; outline: none; }
         .btn:active { top: 4px; box-shadow: 0px 0px 0px transparent; }
         .btn-nav { width: 100%; margin-bottom: 5px; }
         .btn-answer { background: #ff007f; color: white; width: 100%; box-shadow: 0px 4px 0px #c20062; margin-top: 10px; }
-        .pack { background: #231245; border: 4px solid #ff007f; border-radius: 15px; padding: 20px; cursor: pointer; display: inline-block; width: 140px; margin: 10px; }
-        #reveal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; align-items: center; justify-content: center; flex-direction: column; }
-        .card-container { width: 250px; height: 350px; perspective: 1000px; cursor: pointer; }
+        
+        .trivia-container { background: #231245; padding: 30px; border-radius: 20px; max-width: 500px; margin: 0 auto; border: 4px solid #00d4ff; box-shadow: 6px 6px 0px #ff007f; }
+        .pack { background: #231245; border: 4px solid #ff007f; border-radius: 15px; padding: 20px; cursor: pointer; transition: 0.3s; display: inline-block; width: 140px; margin: 10px; }
+        .pack:hover { transform: scale(1.05) rotate(2deg); }
+
+        /* --- 3D CARD REVEAL --- */
+        #reveal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 200; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        .card-container { width: 260px; height: 360px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 20px; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
         .card-front { background: linear-gradient(45deg, #ff007f, #00d4ff); }
+        .card-front::after { content: "PINCKET"; font-size: 32px; font-weight: 900; color: white; text-shadow: 3px 3px 0px #100b20; }
         .card-back { background: #fff; color: #100b20; transform: rotateY(180deg); flex-direction: column; padding: 15px; box-sizing: border-box; }
-        .card-img { width: 100%; height: 75%; object-fit: contain; }
-        .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; padding: 20px; }
-        .inv-card { background: white; border-radius: 12px; padding: 8px; border: 3px solid #00d4ff; color: #100b20; display: flex; flex-direction: column; align-items: center; }
+        .card-img { width: 100%; height: 70%; object-fit: contain; border-radius: 10px; }
+        .rarity-label { font-size: 14px; font-weight: 900; background: #100b20; color: white; padding: 4px 12px; border-radius: 12px; margin-top: 10px; }
+
+        /* --- COLLECTION GRID --- */
+        .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding: 20px; }
+        .inv-card { background: white; border-radius: 15px; padding: 10px; border: 3px solid #00d4ff; color: #100b20; display: flex; flex-direction: column; align-items: center; box-shadow: 4px 4px 0px #ff007f; transition: 0.2s; }
+        .inv-card:hover { transform: translateY(-5px); }
+        .inv-card img { width: 100%; height: 90px; object-fit: contain; }
+
+        /* Auth */
         #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 300; display: flex; align-items: center; justify-content: center; }
-        .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 320px; text-align: center; }
+        .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 340px; text-align: center; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
+
     <div id="reveal-overlay">
-        <h2 id="reveal-text" style="color: #00d4ff; margin-bottom: 20px; font-size: 30px;">TAP TO FLIP!</h2>
+        <h2 id="reveal-text" style="color: #00d4ff; margin-bottom: 20px; font-size: 34px; font-weight: 900;">TAP TO REVEAL!</h2>
         <div class="card-container" onclick="flipCard()">
             <div id="card-inner" class="card-inner">
                 <div class="card-front"></div>
                 <div class="card-back">
                     <img id="reveal-img" class="card-img" src="">
-                    <h3 id="reveal-name" style="margin: 10px 0 0 0; font-size: 20px;">?</h3>
+                    <h3 id="reveal-name" style="margin: 10px 0 0 0; font-size: 22px; font-weight: 900; color: #ff007f;">?</h3>
+                    <div id="reveal-rarity" class="rarity-label">COMMON</div>
                 </div>
             </div>
         </div>
-        <button id="collect-btn" class="btn hidden" style="margin-top: 20px; background: #ff007f; color: white;" onclick="closeReveal()">Collect Card</button>
+        <button id="collect-btn" class="btn hidden" style="margin-top: 20px; background: #ff007f; color: white; padding: 15px 40px;" onclick="closeReveal()">Collect Card</button>
     </div>
 
     <div id="auth-overlay">
         <div class="auth-box">
-            <h1>PINCKET</h1>
-            <input type="email" id="email" placeholder="Email" style="width:100%; padding:10px; margin:5px 0;">
-            <input type="password" id="password" placeholder="Password" style="width:100%; padding:10px; margin:5px 0;">
+            <h1 style="font-weight:900; color:#ff007f; margin:0; font-size: 40px;">PINCKET</h1>
+            <p style="color:#666; margin-bottom:25px;">Level Up Your Collection</p>
+            <input type="email" id="email" placeholder="Email" style="width:100%; padding:12px; margin:8px 0; border:2px solid #ddd; border-radius:8px;">
+            <input type="password" id="password" placeholder="Password" style="width:100%; padding:12px; margin:8px 0; border:2px solid #ddd; border-radius:8px;">
             <button class="btn btn-nav" onclick="handleAuth('login')">Login</button>
-            <button class="btn" style="background:#eee; width:100%;" onclick="handleAuth('signup')">Sign Up</button>
+            <button class="btn" style="background:#eee; border:none; width:100%; margin-top:5px; box-shadow:none; color: #444;" onclick="handleAuth('signup')">Create Account</button>
+            <p id="auth-error" style="color:red; font-size:12px; margin-top:10px;"></p>
         </div>
     </div>
 
     <div id="sidebar">
-        <div class="profile-card">💰 <span id="tokenCount">0</span></div>
-        <button class="btn btn-nav" onclick="switchTab('home')">Home</button>
-        <button class="btn btn-nav" onclick="switchTab('play')">Play</button>
-        <button class="btn btn-nav" onclick="switchTab('market')">Market</button>
-        <button class="btn btn-nav" onclick="switchTab('inventory')">Collection</button>
-        <button class="btn" style="background:#ff4757; color:white;" onclick="logout()">Logout</button>
+        <div class="profile-card">
+            <div style="font-size: 44px;">👤</div>
+            <div style="font-size: 28px; color: #ff007f; font-weight: 900;"><span id="tokenCount">0</span> 💰</div>
+        </div>
+        <button class="btn btn-nav" onclick="switchTab('home')">🏠 Home</button>
+        <button class="btn btn-nav" onclick="switchTab('play')">🎮 Play</button>
+        <button class="btn btn-nav" onclick="switchTab('market')">🛒 Market</button>
+        <button class="btn btn-nav" onclick="switchTab('inventory')">🎒 Collection</button>
+        <div style="flex-grow:1;"></div>
+        <button class="btn" style="background:#ff4757; border:none; color:white; font-size:11px; box-shadow:none;" onclick="logout()">Logout</button>
     </div>
 
     <div id="main-content">
-        <div id="homeTab" class="tab-content active"><h1>Welcome to Pincket</h1></div>
-        <div id="playTab" class="tab-content"><h2 id="q-text">Loading...</h2><div id="ans-grid"></div></div>
-        <div id="marketTab" class="tab-content">
-            <div class="pack" onclick="buyPack('Anime')">Anime</div>
-            <div class="pack" onclick="buyPack('Nintendo')">Nintendo</div>
+        <div id="homeTab" class="tab-content active">
+            <h1 style="font-size:64px; text-shadow: 5px 5px #ff007f; margin-bottom:15px;">Pincket</h1>
+            <p style="font-size:24px; opacity:0.9; margin-bottom:45px;">Train your brain. Pull rare cards.</p>
+            <button class="btn" style="padding: 25px 60px; font-size: 26px;" onclick="switchTab('play')">Start Earning</button>
         </div>
-        <div id="inventoryTab" class="tab-content"><div id="inv-list" class="inv-grid"></div></div>
+
+        <div id="playTab" class="tab-content">
+            <div class="trivia-container">
+                <div id="question-text" style="font-size:26px; font-weight:900; margin-bottom:25px;">Loading deck...</div>
+                <div id="answers-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"></div>
+                <div id="trivia-feedback" style="margin-top:25px; font-weight:900; min-height:30px; font-size: 20px;"></div>
+            </div>
+        </div>
+
+        <div id="marketTab" class="tab-content">
+            <h2 style="font-size:36px; margin-bottom: 30px;">Packs (100 💰)</h2>
+            <div class="pack" onclick="buyPack('Anime')"><div style="font-size:45px;">🔥</div><h3>Anime</h3></div>
+            <div class="pack" onclick="buyPack('Nintendo')"><div style="font-size:45px;">🍄</div><h3>Nintendo</h3></div>
+        </div>
+
+        <div id="inventoryTab" class="tab-content">
+            <h2 style="font-size:36px; margin-bottom: 20px;">Your Rare Pulls</h2>
+            <div id="inv-list" class="inv-grid"></div>
+        </div>
     </div>
 
     <script type="module">
@@ -86,64 +130,113 @@
         const db = getFirestore(app);
         
         let userData = { tokens: 0, inventory: [] };
-        let cloudTrivia = []; let cloudCards = [];
+        let cloudTrivia = []; let cloudCards = []; 
 
-        window.handleAuth = async (type) => {
-            const e = document.getElementById('email').value; const p = document.getElementById('password').value;
-            if(type === 'signup') {
-                const res = await createUserWithEmailAndPassword(auth, e, p);
-                await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [] });
-            } else { await signInWithEmailAndPassword(auth, e, p); }
+        // --- SYNTH SOUND ENGINE (RESTORED) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playNote(freq, type, duration) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+        const sounds = {
+            correct: () => { playNote(523.25, 'square', 0.1); setTimeout(() => playNote(659.25, 'square', 0.2), 100); },
+            wrong: () => { playNote(220, 'sawtooth', 0.1); setTimeout(() => playNote(110, 'sawtooth', 0.3), 100); },
+            pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); },
+            click: () => playNote(440, 'sine', 0.05)
         };
-        window.logout = () => signOut(auth);
+
+        // --- AUTH & TABS ---
+        window.handleAuth = async (type) => {
+            sounds.click();
+            const e = document.getElementById('email').value; const p = document.getElementById('password').value;
+            try {
+                if (type === 'signup') {
+                    const res = await createUserWithEmailAndPassword(auth, e, p);
+                    await setDoc(doc(db, "users", res.user.uid), { tokens: 0, inventory: [] });
+                } else { await signInWithEmailAndPassword(auth, e, p); }
+            } catch (err) { document.getElementById('auth-error').innerText = err.message; }
+        };
+        window.logout = () => { sounds.click(); signOut(auth); };
         window.switchTab = (t) => {
+            sounds.click();
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(t + 'Tab').classList.add('active');
-            if (t === 'play') window.loadQuestion();
+            if (t === 'play') window.loadQuestion(); 
         };
 
+        // --- CLOUD FETCH ---
         async function fetchGameData() {
-            const qSnap = await getDocs(collection(db, "questions")); cloudTrivia = qSnap.docs.map(d => d.data());
-            const cSnap = await getDocs(collection(db, "cards")); cloudCards = cSnap.docs.map(d => d.data());
+            try {
+                const qSnap = await getDocs(collection(db, "questions")); cloudTrivia = qSnap.docs.map(d => d.data());
+                const cSnap = await getDocs(collection(db, "cards")); cloudCards = cSnap.docs.map(d => d.data());
+            } catch(e) { console.error(e); }
         }
 
+        // --- PACKS & REVEAL ---
         window.buyPack = async (type) => {
             if(userData.tokens >= 100) {
-                userData.tokens -= 100;
+                userData.tokens -= 100; sounds.pack();
                 const packPool = cloudCards.filter(c => c.packType === type);
-                const pull = packPool[Math.floor(Math.random() * packPool.length)];
+                const roll = Math.random() * 100;
+                let tier = roll < 70 ? 1 : (roll < 95 ? 2 : 3);
+                let pool = packPool.filter(c => c.rarity === tier);
+                if (!pool.length) pool = packPool;
+                const pull = pool[Math.floor(Math.random() * pool.length)];
+                
+                if(!userData.inventory) userData.inventory = [];
                 userData.inventory.push(pull);
-                document.getElementById('reveal-img').src = pull.imageUrl;
+
+                document.getElementById('reveal-img').src = pull.imageUrl || "https://placehold.co/200x300?text=Card";
                 document.getElementById('reveal-name').innerText = pull.name;
+                const rLabels = ["", "COMMON", "RARE", "ULTRA RARE"];
+                document.getElementById('reveal-rarity').innerText = rLabels[pull.rarity] || "COMMON";
                 document.getElementById('card-inner').classList.remove('is-flipped');
                 document.getElementById('collect-btn').classList.add('hidden');
                 document.getElementById('reveal-overlay').style.display = "flex";
                 await saveToCloud(); updateUI();
-            }
+            } else { sounds.wrong(); alert("Not enough tokens!"); }
         };
 
-        window.flipCard = () => { document.getElementById('card-inner').classList.add('is-flipped'); document.getElementById('collect-btn').classList.remove('hidden'); };
-        window.closeReveal = () => document.getElementById('reveal-overlay').style.display = "none";
+        window.flipCard = () => { document.getElementById('card-inner').classList.add('is-flipped'); document.getElementById('collect-btn').classList.remove('hidden'); playNote(880, 'sine', 0.2); };
+        window.closeReveal = () => { document.getElementById('reveal-overlay').style.display = "none"; sounds.click(); };
 
+        // --- CORE LOGIC ---
         async function saveToCloud() {
             if(auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true });
         }
 
         function updateUI() {
             document.getElementById('tokenCount').innerText = userData.tokens;
-            document.getElementById('inv-list').innerHTML = (userData.inventory || []).map(c => `
-                <div class="inv-card"><img src="${c.imageUrl}"><p>${c.name}</p></div>
+            const invList = document.getElementById('inv-list');
+            invList.innerHTML = (userData.inventory || []).map(card => `
+                <div class="inv-card">
+                    <img src="${card.imageUrl}">
+                    <p style="margin:8px 0 0 0; font-size:13px; font-weight:900;">${card.name}</p>
+                    <span style="font-size:10px; color:#ff007f; font-weight:900;">${["", "C", "R", "UR"][card.rarity]}</span>
+                </div>
             `).join('');
         }
 
         window.loadQuestion = () => {
             if (!cloudTrivia.length) return;
             const q = cloudTrivia[Math.floor(Math.random() * cloudTrivia.length)];
-            document.getElementById('q-text').innerText = q.q;
-            const grid = document.getElementById('ans-grid'); grid.innerHTML = "";
-            q.a.forEach(ans => {
+            document.getElementById('question-text').innerText = q.q;
+            const grid = document.getElementById('answers-grid'); grid.innerHTML = "";
+            q.a.sort(() => Math.random() - 0.5).forEach(ans => {
                 const b = document.createElement('button'); b.className = "btn btn-answer"; b.innerText = ans;
-                b.onclick = async () => { if(ans === q.c) { userData.tokens += 100; await saveToCloud(); updateUI(); window.loadQuestion(); } };
+                b.onclick = async () => {
+                    const fb = document.getElementById('trivia-feedback');
+                    if(ans === q.c) { userData.tokens += 100; sounds.correct(); fb.innerText = "CORRECT! +100💰"; fb.style.color = "#00d4ff"; }
+                    else { sounds.wrong(); fb.innerText = "WRONG! Try again!"; fb.style.color = "#ff007f"; }
+                    await saveToCloud(); updateUI();
+                    setTimeout(() => { fb.innerText = ""; window.loadQuestion(); }, 1200);
+                };
                 grid.appendChild(b);
             });
         };
