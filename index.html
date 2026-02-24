@@ -40,7 +40,7 @@
 
         /* --- COLLECTION GRID --- */
         .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding: 20px; }
-        .inv-card { background: white; border-radius: 15px; padding: 10px; border: 3px solid #00d4ff; color: #100b20; display: flex; flex-direction: column; align-items: center; box-shadow: 4px 4px 0px #ff007f; transition: 0.2s; }
+        .inv-card { background: white; border-radius: 15px; padding: 10px; color: #100b20; display: flex; flex-direction: column; align-items: center; transition: 0.2s; border: 3px solid #fff; }
         .inv-card:hover { transform: translateY(-5px); }
         .inv-card img { width: 100%; height: 90px; object-fit: contain; }
 
@@ -114,7 +114,15 @@
         </div>
 
         <div id="inventoryTab" class="tab-content">
-            <h2 style="font-size:36px; margin-bottom: 20px;">Your Rare Pulls</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size:36px; margin: 0;">Your Cards</h2>
+                <select id="sort-filter" onchange="window.updateUI()" style="padding: 10px; background: #231245; color: white; border: 2px solid #00d4ff; border-radius: 8px; font-family: 'Nunito', sans-serif; font-weight: 900; outline: none; cursor: pointer;">
+                    <option value="newest">Newest First</option>
+                    <option value="rarity-desc">Highest Rarity</option>
+                    <option value="rarity-asc">Lowest Rarity</option>
+                    <option value="name">A - Z</option>
+                </select>
+            </div>
             <div id="inv-list" class="inv-grid"></div>
         </div>
     </div>
@@ -132,7 +140,7 @@
         let userData = { tokens: 0, inventory: [] };
         let cloudTrivia = []; let cloudCards = []; 
 
-        // --- SYNTH SOUND ENGINE (RESTORED) ---
+        // --- SYNTH SOUND ENGINE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playNote(freq, type, duration) {
             if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -199,7 +207,7 @@
                 document.getElementById('card-inner').classList.remove('is-flipped');
                 document.getElementById('collect-btn').classList.add('hidden');
                 document.getElementById('reveal-overlay').style.display = "flex";
-                await saveToCloud(); updateUI();
+                await saveToCloud(); window.updateUI();
             } else { sounds.wrong(); alert("Not enough tokens!"); }
         };
 
@@ -211,17 +219,40 @@
             if(auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), userData, { merge: true });
         }
 
-        function updateUI() {
+        // --- DYNAMIC UI & SORTER ---
+        window.updateUI = () => {
             document.getElementById('tokenCount').innerText = userData.tokens;
+            
+            const sortType = document.getElementById('sort-filter') ? document.getElementById('sort-filter').value : 'newest';
+            let sortedInv = [...(userData.inventory || [])];
+            
+            // Apply sorting rules
+            if (sortType === 'rarity-desc') {
+                sortedInv.sort((a, b) => b.rarity - a.rarity);
+            } else if (sortType === 'rarity-asc') {
+                sortedInv.sort((a, b) => a.rarity - b.rarity);
+            } else if (sortType === 'name') {
+                sortedInv.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            } else {
+                sortedInv.reverse(); // Newest first
+            }
+
+            const rLabels = ["", "COMMON", "RARE", "ULTRA RARE"];
+            const rColors = ["", "#00d4ff", "#ffd700", "#ff007f"]; // 1=Cyan, 2=Gold, 3=Pink
+
             const invList = document.getElementById('inv-list');
-            invList.innerHTML = (userData.inventory || []).map(card => `
-                <div class="inv-card">
+            invList.innerHTML = sortedInv.map(card => {
+                const cColor = rColors[card.rarity] || '#fff';
+                const cLabel = rLabels[card.rarity] || 'UNKNOWN';
+                return `
+                <div class="inv-card" style="border-color: ${cColor}; box-shadow: 4px 4px 0px ${cColor};">
                     <img src="${card.imageUrl}">
-                    <p style="margin:8px 0 0 0; font-size:13px; font-weight:900;">${card.name}</p>
-                    <span style="font-size:10px; color:#ff007f; font-weight:900;">${["", "C", "R", "UR"][card.rarity]}</span>
+                    <p style="margin:8px 0 0 0; font-size:15px; font-weight:900;">${card.name}</p>
+                    <span style="font-size:12px; color:${cColor}; font-weight:900; margin-top:4px;">${cLabel}</span>
                 </div>
-            `).join('');
-        }
+                `;
+            }).join('');
+        };
 
         window.loadQuestion = () => {
             if (!cloudTrivia.length) return;
@@ -234,7 +265,7 @@
                     const fb = document.getElementById('trivia-feedback');
                     if(ans === q.c) { userData.tokens += 100; sounds.correct(); fb.innerText = "CORRECT! +100💰"; fb.style.color = "#00d4ff"; }
                     else { sounds.wrong(); fb.innerText = "WRONG! Try again!"; fb.style.color = "#ff007f"; }
-                    await saveToCloud(); updateUI();
+                    await saveToCloud(); window.updateUI();
                     setTimeout(() => { fb.innerText = ""; window.loadQuestion(); }, 1200);
                 };
                 grid.appendChild(b);
@@ -246,7 +277,7 @@
                 document.getElementById('auth-overlay').classList.add('hidden');
                 const ds = await getDoc(doc(db, "users", user.uid));
                 if (ds.exists()) { userData = ds.data(); if (!Array.isArray(userData.inventory)) userData.inventory = []; }
-                await fetchGameData(); updateUI();
+                await fetchGameData(); window.updateUI();
             } else { document.getElementById('auth-overlay').classList.remove('hidden'); }
         });
     </script>
