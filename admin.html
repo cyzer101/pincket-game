@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-<head><title>Admin Sync</title></head>
+<head><title>Admin Master Sync</title></head>
 <body style="background:#111; color:white; text-align:center; font-family:sans-serif; padding: 50px;">
-    <h1>Database Global Sync</h1>
+    <h1>Database Master Sync</h1>
     <div style="background:#222; padding:30px; border-radius:15px; display:inline-block;">
         <input type="email" id="email" placeholder="Admin Email" style="padding:10px; margin:5px;"><br>
         <input type="password" id="password" placeholder="Password" style="padding:10px; margin:5px;"><br>
-        <button onclick="sync()" style="padding:15px 30px; margin:20px; cursor:pointer; background:#00d4ff; font-weight:bold; border:none; border-radius:8px;">🚀 Sync Proxy Deck</button>
+        <button onclick="sync()" style="padding:15px 30px; margin:20px; cursor:pointer; background:#00d4ff; font-weight:bold; border:none; border-radius:8px;">🚀 Push 100 Questions & 78 Cards</button>
         <div id="status">Status: Waiting...</div>
     </div>
 
@@ -20,65 +20,221 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // All vulnerable links wrapped in wsrv.nl proxy to bypass blocks
+        // All URLs now point to a local "images" folder on your GitHub. 
+        // Upload images matching these names to your GitHub to fix them forever!
         const cards = [
-            // NINTENDO PACK
-            { id: "nin_mario", name: "Mario", packType: "Nintendo", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/a/a9/Mario_NSMBU.png" },
-            { id: "nin_luigi", name: "Luigi", packType: "Nintendo", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/7/73/Luigi_NSMBU.png" },
-            { id: "nin_peach", name: "Peach", packType: "Nintendo", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/1/16/Princess_Peach_Stock_Art.png" },
-            { id: "nin_bowser", name: "Bowser", packType: "Nintendo", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/9/92/Bowser_Stock_Art_2021.png" },
-            { id: "nin_yoshi", name: "Yoshi", packType: "Nintendo", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/3/39/YoshiMarioParty10.png" },
-            { id: "nin_link", name: "Link", packType: "Nintendo", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/7/7d/Link_brawl.png" },
-            { id: "nin_zelda", name: "Zelda", packType: "Nintendo", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/2/25/Zelda_SSBU.png" },
-            { id: "nin_ganon", name: "Ganondorf", packType: "Nintendo", rarity: 3, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/8/82/Ganondorf_SSBU.png" },
-            { id: "nin_kirby", name: "Kirby", packType: "Nintendo", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/2/2d/Kirby_Cloud.png" },
-            { id: "nin_metaknight", name: "Meta Knight", packType: "Nintendo", rarity: 3, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/0/07/Meta_Knight.png" },
-            { id: "nin_falcon", name: "Captain Falcon", packType: "Nintendo", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/7/77/Captain_Falcon_SSBU.png" },
-            // Pokemon (Raw GitHub API is already immune)
-            { id: "nin_bulbasaur", name: "Bulbasaur", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" },
-            { id: "nin_charmander", name: "Charmander", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" },
-            { id: "nin_squirtle", name: "Squirtle", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png" },
-            { id: "nin_pikachu", name: "Pikachu", packType: "Nintendo", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" },
-            { id: "nin_gengar", name: "Gengar", packType: "Nintendo", rarity: 2, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/94.png" },
-            { id: "nin_snorlax", name: "Snorlax", packType: "Nintendo", rarity: 2, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/143.png" },
-            { id: "nin_charizard", name: "Charizard", packType: "Nintendo", rarity: 3, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" },
-            { id: "nin_mewtwo", name: "Mewtwo", packType: "Nintendo", rarity: 3, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png" },
-            { id: "nin_lugia", name: "Lugia", packType: "Nintendo", rarity: 3, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/249.png" },
+            // NINTENDO PACK (26)
+            { id: "nin_mario", name: "Mario", packType: "Nintendo", rarity: 1, imageUrl: "images/mario.png" },
+            { id: "nin_luigi", name: "Luigi", packType: "Nintendo", rarity: 1, imageUrl: "images/luigi.png" },
+            { id: "nin_peach", name: "Peach", packType: "Nintendo", rarity: 2, imageUrl: "images/peach.png" },
+            { id: "nin_bowser", name: "Bowser", packType: "Nintendo", rarity: 2, imageUrl: "images/bowser.png" },
+            { id: "nin_yoshi", name: "Yoshi", packType: "Nintendo", rarity: 1, imageUrl: "images/yoshi.png" },
+            { id: "nin_link", name: "Link", packType: "Nintendo", rarity: 2, imageUrl: "images/link.png" },
+            { id: "nin_zelda", name: "Zelda", packType: "Nintendo", rarity: 2, imageUrl: "images/zelda.png" },
+            { id: "nin_ganon", name: "Ganondorf", packType: "Nintendo", rarity: 3, imageUrl: "images/ganon.png" },
+            { id: "nin_kirby", name: "Kirby", packType: "Nintendo", rarity: 1, imageUrl: "images/kirby.png" },
+            { id: "nin_metaknight", name: "Meta Knight", packType: "Nintendo", rarity: 3, imageUrl: "images/metaknight.png" },
+            { id: "nin_falcon", name: "Captain Falcon", packType: "Nintendo", rarity: 2, imageUrl: "images/falcon.png" },
+            { id: "nin_dk", name: "Donkey Kong", packType: "Nintendo", rarity: 2, imageUrl: "images/dk.png" },
+            { id: "nin_samus", name: "Samus", packType: "Nintendo", rarity: 3, imageUrl: "images/samus.png" },
+            { id: "nin_fox", name: "Fox", packType: "Nintendo", rarity: 2, imageUrl: "images/fox.png" },
+            { id: "nin_ness", name: "Ness", packType: "Nintendo", rarity: 2, imageUrl: "images/ness.png" },
+            { id: "nin_pit", name: "Pit", packType: "Nintendo", rarity: 2, imageUrl: "images/pit.png" },
+            { id: "nin_bulbasaur", name: "Bulbasaur", packType: "Nintendo", rarity: 1, imageUrl: "images/bulbasaur.png" },
+            { id: "nin_charmander", name: "Charmander", packType: "Nintendo", rarity: 1, imageUrl: "images/charmander.png" },
+            { id: "nin_squirtle", name: "Squirtle", packType: "Nintendo", rarity: 1, imageUrl: "images/squirtle.png" },
+            { id: "nin_pikachu", name: "Pikachu", packType: "Nintendo", rarity: 1, imageUrl: "images/pikachu.png" },
+            { id: "nin_gengar", name: "Gengar", packType: "Nintendo", rarity: 2, imageUrl: "images/gengar.png" },
+            { id: "nin_snorlax", name: "Snorlax", packType: "Nintendo", rarity: 2, imageUrl: "images/snorlax.png" },
+            { id: "nin_charizard", name: "Charizard", packType: "Nintendo", rarity: 3, imageUrl: "images/charizard.png" },
+            { id: "nin_mewtwo", name: "Mewtwo", packType: "Nintendo", rarity: 3, imageUrl: "images/mewtwo.png" },
+            { id: "nin_lugia", name: "Lugia", packType: "Nintendo", rarity: 3, imageUrl: "images/lugia.png" },
+            { id: "nin_rayquaza", name: "Rayquaza", packType: "Nintendo", rarity: 3, imageUrl: "images/rayquaza.png" },
 
-            // ANIME PACK
-            { id: "ani_goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/a/af/Son_Goku_YoungAdult.PNG" },
-            { id: "ani_vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/f/f6/Vegeta_Dragon_Ball.jpg" },
-            { id: "ani_gohan", name: "Gohan", packType: "Anime", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/7/7b/Gohan.png" },
-            { id: "ani_piccolo", name: "Piccolo", packType: "Anime", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/3/30/Piccolo_Dragon_Ball.png" },
-            { id: "ani_frieza", name: "Frieza", packType: "Anime", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/9/90/Frieza_Dragon_Ball.jpg" },
-            { id: "ani_cell", name: "Perfect Cell", packType: "Anime", rarity: 3, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/9/99/Cell_Dragon_Ball.jpg" },
-            { id: "ani_broly", name: "Broly", packType: "Anime", rarity: 3, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/d/dd/Broly_Dragon_Ball.jpg" },
-            { id: "ani_naruto", name: "Naruto", packType: "Anime", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/9/9a/NarutoUzuzmaki.png" },
-            { id: "ani_sasuke", name: "Sasuke", packType: "Anime", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/e/e0/Sasuke_Uchiha_Shippuden.png" },
-            { id: "ani_kakashi", name: "Kakashi", packType: "Anime", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/4/4b/Kakashi_Hatake.png" },
-            { id: "ani_gaara", name: "Gaara", packType: "Anime", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/e/eb/Gaara_Naruto.jpg" },
-            { id: "ani_itachi", name: "Itachi", packType: "Anime", rarity: 3, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/a/a1/Itachi_Uchiha.jpg" },
-            { id: "ani_luffy", name: "Luffy", packType: "Anime", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/a/a4/Monkey_D._Luffy.png" },
-            { id: "ani_zoro", name: "Zoro", packType: "Anime", rarity: 2, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/a/a4/Roronoa_Zoro.jpg" },
-            { id: "ani_deku", name: "Deku", packType: "Anime", rarity: 1, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/3/36/Izuku_Midoriya.png" },
-            { id: "ani_allmight", name: "All Might", packType: "Anime", rarity: 3, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/1/1b/All_Might.png" },
-            { id: "ani_saitama", name: "Saitama", packType: "Anime", rarity: 3, imageUrl: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/en/c/c3/Saitama_One_Punch_Man.png" }
+            // ANIME PACK (26)
+            { id: "ani_goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "images/goku.jpg" },
+            { id: "ani_vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "images/vegeta.jpg" },
+            { id: "ani_gohan", name: "Gohan", packType: "Anime", rarity: 2, imageUrl: "images/gohan.jpg" },
+            { id: "ani_piccolo", name: "Piccolo", packType: "Anime", rarity: 1, imageUrl: "images/piccolo.jpg" },
+            { id: "ani_frieza", name: "Frieza", packType: "Anime", rarity: 2, imageUrl: "images/frieza.jpg" },
+            { id: "ani_cell", name: "Perfect Cell", packType: "Anime", rarity: 3, imageUrl: "images/cell.jpg" },
+            { id: "ani_broly", name: "Broly", packType: "Anime", rarity: 3, imageUrl: "images/broly.jpg" },
+            { id: "ani_beerus", name: "Beerus", packType: "Anime", rarity: 3, imageUrl: "images/beerus.jpg" },
+            { id: "ani_naruto", name: "Naruto", packType: "Anime", rarity: 1, imageUrl: "images/naruto.jpg" },
+            { id: "ani_sasuke", name: "Sasuke", packType: "Anime", rarity: 2, imageUrl: "images/sasuke.jpg" },
+            { id: "ani_kakashi", name: "Kakashi", packType: "Anime", rarity: 2, imageUrl: "images/kakashi.jpg" },
+            { id: "ani_gaara", name: "Gaara", packType: "Anime", rarity: 2, imageUrl: "images/gaara.jpg" },
+            { id: "ani_itachi", name: "Itachi", packType: "Anime", rarity: 3, imageUrl: "images/itachi.jpg" },
+            { id: "ani_madara", name: "Madara", packType: "Anime", rarity: 3, imageUrl: "images/madara.jpg" },
+            { id: "ani_luffy", name: "Luffy", packType: "Anime", rarity: 1, imageUrl: "images/luffy.jpg" },
+            { id: "ani_zoro", name: "Zoro", packType: "Anime", rarity: 2, imageUrl: "images/zoro.jpg" },
+            { id: "ani_sanji", name: "Sanji", packType: "Anime", rarity: 2, imageUrl: "images/sanji.jpg" },
+            { id: "ani_kaido", name: "Kaido", packType: "Anime", rarity: 3, imageUrl: "images/kaido.jpg" },
+            { id: "ani_deku", name: "Deku", packType: "Anime", rarity: 1, imageUrl: "images/deku.jpg" },
+            { id: "ani_bakugo", name: "Bakugo", packType: "Anime", rarity: 2, imageUrl: "images/bakugo.jpg" },
+            { id: "ani_allmight", name: "All Might", packType: "Anime", rarity: 3, imageUrl: "images/allmight.jpg" },
+            { id: "ani_saitama", name: "Saitama", packType: "Anime", rarity: 3, imageUrl: "images/saitama.jpg" },
+            { id: "ani_ichigo", name: "Ichigo", packType: "Anime", rarity: 2, imageUrl: "images/ichigo.jpg" },
+            { id: "ani_aizen", name: "Aizen", packType: "Anime", rarity: 3, imageUrl: "images/aizen.jpg" },
+            { id: "ani_tanjiro", name: "Tanjiro", packType: "Anime", rarity: 1, imageUrl: "images/tanjiro.jpg" },
+            { id: "ani_rengoku", name: "Rengoku", packType: "Anime", rarity: 3, imageUrl: "images/rengoku.jpg" },
+
+            // NEW: ANIMAL PACK (26)
+            { id: "anml_dog", name: "Golden Retriever", packType: "Animal", rarity: 1, imageUrl: "images/dog.jpg" },
+            { id: "anml_cat", name: "House Cat", packType: "Animal", rarity: 1, imageUrl: "images/cat.jpg" },
+            { id: "anml_turtle", name: "Sea Turtle", packType: "Animal", rarity: 1, imageUrl: "images/turtle.jpg" },
+            { id: "anml_frog", name: "Tree Frog", packType: "Animal", rarity: 1, imageUrl: "images/frog.jpg" },
+            { id: "anml_penguin", name: "Emperor Penguin", packType: "Animal", rarity: 1, imageUrl: "images/penguin.jpg" },
+            { id: "anml_kangaroo", name: "Kangaroo", packType: "Animal", rarity: 1, imageUrl: "images/kangaroo.jpg" },
+            { id: "anml_koala", name: "Koala", packType: "Animal", rarity: 1, imageUrl: "images/koala.jpg" },
+            { id: "anml_owl", name: "Barn Owl", packType: "Animal", rarity: 1, imageUrl: "images/owl.jpg" },
+            { id: "anml_lion", name: "African Lion", packType: "Animal", rarity: 2, imageUrl: "images/lion.jpg" },
+            { id: "anml_tiger", name: "Bengal Tiger", packType: "Animal", rarity: 2, imageUrl: "images/tiger.jpg" },
+            { id: "anml_elephant", name: "Elephant", packType: "Animal", rarity: 2, imageUrl: "images/elephant.jpg" },
+            { id: "anml_giraffe", name: "Giraffe", packType: "Animal", rarity: 2, imageUrl: "images/giraffe.jpg" },
+            { id: "anml_bear", name: "Grizzly Bear", packType: "Animal", rarity: 2, imageUrl: "images/bear.jpg" },
+            { id: "anml_wolf", name: "Timber Wolf", packType: "Animal", rarity: 2, imageUrl: "images/wolf.jpg" },
+            { id: "anml_eagle", name: "Bald Eagle", packType: "Animal", rarity: 2, imageUrl: "images/eagle.jpg" },
+            { id: "anml_cheetah", name: "Cheetah", packType: "Animal", rarity: 2, imageUrl: "images/cheetah.jpg" },
+            { id: "anml_rhino", name: "Rhinoceros", packType: "Animal", rarity: 2, imageUrl: "images/rhino.jpg" },
+            { id: "anml_gorilla", name: "Silverback Gorilla", packType: "Animal", rarity: 2, imageUrl: "images/gorilla.jpg" },
+            { id: "anml_shark", name: "Great White Shark", packType: "Animal", rarity: 3, imageUrl: "images/shark.jpg" },
+            { id: "anml_orca", name: "Orca (Killer Whale)", packType: "Animal", rarity: 3, imageUrl: "images/orca.jpg" },
+            { id: "anml_polar", name: "Polar Bear", packType: "Animal", rarity: 3, imageUrl: "images/polarbear.jpg" },
+            { id: "anml_dragon", name: "Komodo Dragon", packType: "Animal", rarity: 3, imageUrl: "images/komodo.jpg" },
+            { id: "anml_panther", name: "Black Panther", packType: "Animal", rarity: 3, imageUrl: "images/panther.jpg" },
+            { id: "anml_anaconda", name: "Green Anaconda", packType: "Animal", rarity: 3, imageUrl: "images/anaconda.jpg" },
+            { id: "anml_falcon", name: "Peregrine Falcon", packType: "Animal", rarity: 3, imageUrl: "images/peregrine.jpg" },
+            { id: "anml_trex", name: "T-Rex Fossil", packType: "Animal", rarity: 3, imageUrl: "images/trex.jpg" }
         ];
 
+        // 100 CUSTOM TRIVIA QUESTIONS
         const questions = [
-            { id: "math1", q: "What is 8 x 7?", a: ["54", "56", "64", "48"], c: "56" },
-            { id: "math2", q: "What is 12 x 5?", a: ["50", "60", "70", "55"], c: "60" },
-            { id: "sci1", q: "Which planet is closest to the Sun?", a: ["Venus", "Mars", "Mercury", "Earth"], c: "Mercury" }
+            // Math
+            { id: "q1", q: "What is 8 x 7?", a: ["54", "56", "64", "48"], c: "56" },
+            { id: "q2", q: "What is 12 x 5?", a: ["50", "60", "70", "55"], c: "60" },
+            { id: "q3", q: "What is 100 - 45?", a: ["55", "65", "45", "50"], c: "55" },
+            { id: "q4", q: "What is 9 x 9?", a: ["72", "81", "90", "99"], c: "81" },
+            { id: "q5", q: "How many sides does a hexagon have?", a: ["5", "6", "7", "8"], c: "6" },
+            { id: "q6", q: "What is half of 150?", a: ["50", "75", "85", "100"], c: "75" },
+            { id: "q7", q: "What is 15 + 16?", a: ["30", "31", "32", "29"], c: "31" },
+            { id: "q8", q: "If you have 4 quarters, how much money is that?", a: ["$0.50", "$0.75", "$1.00", "$1.25"], c: "$1.00" },
+            { id: "q9", q: "What is 3 x 15?", a: ["35", "40", "45", "50"], c: "45" },
+            { id: "q10", q: "How many degrees are in a right angle?", a: ["45", "90", "180", "360"], c: "90" },
+            { id: "q11", q: "What is 144 divided by 12?", a: ["10", "11", "12", "14"], c: "12" },
+            { id: "q12", q: "What is 7 x 6?", a: ["42", "48", "36", "54"], c: "42" },
+            { id: "q13", q: "How many hours are in 2 days?", a: ["24", "48", "72", "36"], c: "48" },
+            { id: "q14", q: "What is 20 x 4?", a: ["60", "80", "100", "40"], c: "80" },
+            { id: "q15", q: "What is 50 + 50 + 50?", a: ["100", "150", "200", "250"], c: "150" },
+            { id: "q16", q: "How many sides does an octagon have?", a: ["6", "8", "10", "12"], c: "8" },
+            { id: "q17", q: "What is 11 x 11?", a: ["111", "121", "131", "110"], c: "121" },
+            { id: "q18", q: "If a game costs $40 and you have $100, how much change do you get?", a: ["$40", "$50", "$60", "$70"], c: "$60" },
+            { id: "q19", q: "What is the square root of 64?", a: ["6", "7", "8", "9"], c: "8" },
+            { id: "q20", q: "What is 300 - 150?", a: ["50", "100", "150", "200"], c: "150" },
+
+            // Science & Nature
+            { id: "q21", q: "Which planet is closest to the Sun?", a: ["Venus", "Mars", "Mercury", "Earth"], c: "Mercury" },
+            { id: "q22", q: "What gas do plants absorb from the air?", a: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Helium"], c: "Carbon Dioxide" },
+            { id: "q23", q: "What is the largest ocean on Earth?", a: ["Atlantic", "Indian", "Arctic", "Pacific"], c: "Pacific" },
+            { id: "q24", q: "What part of the plant conducts photosynthesis?", a: ["Roots", "Stem", "Leaves", "Flowers"], c: "Leaves" },
+            { id: "q25", q: "What is the boiling point of water in Celsius?", a: ["50", "90", "100", "120"], c: "100" },
+            { id: "q26", q: "What force keeps us on the ground?", a: ["Magnetism", "Friction", "Gravity", "Inertia"], c: "Gravity" },
+            { id: "q27", q: "Which animal is known as the King of the Jungle?", a: ["Tiger", "Elephant", "Lion", "Gorilla"], c: "Lion" },
+            { id: "q28", q: "What is the hardest natural substance on Earth?", a: ["Gold", "Iron", "Diamond", "Quartz"], c: "Diamond" },
+            { id: "q29", q: "How many legs does a spider have?", a: ["6", "8", "10", "12"], c: "8" },
+            { id: "q30", q: "What is the center of an atom called?", a: ["Electron", "Proton", "Nucleus", "Molecule"], c: "Nucleus" },
+            { id: "q31", q: "Which planet is known as the Red Planet?", a: ["Jupiter", "Saturn", "Mars", "Venus"], c: "Mars" },
+            { id: "q32", q: "What do caterpillars turn into?", a: ["Bees", "Butterflies", "Beetles", "Worms"], c: "Butterflies" },
+            { id: "q33", q: "What is the largest land animal?", a: ["Rhino", "Hippo", "Elephant", "Giraffe"], c: "Elephant" },
+            { id: "q34", q: "What comes out of a volcano?", a: ["Mud", "Magma/Lava", "Water", "Ice"], c: "Magma/Lava" },
+            { id: "q35", q: "What kind of animal is a frog?", a: ["Reptile", "Mammal", "Amphibian", "Fish"], c: "Amphibian" },
+            { id: "q36", q: "Which sense uses the olfactory nerve?", a: ["Sight", "Hearing", "Touch", "Smell"], c: "Smell" },
+            { id: "q37", q: "What is Earth's only natural satellite?", a: ["The Sun", "The Moon", "Mars", "Venus"], c: "The Moon" },
+            { id: "q38", q: "What do pandas primarily eat?", a: ["Fish", "Bamboo", "Insects", "Berries"], c: "Bamboo" },
+            { id: "q39", q: "What makes up roughly 70% of the Earth's surface?", a: ["Land", "Water", "Ice", "Forests"], c: "Water" },
+            { id: "q40", q: "How many bones are in the adult human body?", a: ["150", "206", "250", "300"], c: "206" },
+
+            // Geography
+            { id: "q41", q: "How many continents are there?", a: ["5", "6", "7", "8"], c: "7" },
+            { id: "q42", q: "What is the capital of the United States?", a: ["New York", "Los Angeles", "Washington D.C.", "Chicago"], c: "Washington D.C." },
+            { id: "q43", q: "In which US state is the city of Saratoga Springs located?", a: ["Nevada", "Utah", "Colorado", "Idaho"], c: "Utah" },
+            { id: "q44", q: "What is the longest river in the world?", a: ["Amazon", "Nile", "Mississippi", "Yangtze"], c: "Nile" },
+            { id: "q45", q: "Which country has the largest population?", a: ["USA", "India", "Russia", "Brazil"], c: "India" },
+            { id: "q46", q: "What country is famous for the Eiffel Tower?", a: ["Italy", "Spain", "France", "Germany"], c: "France" },
+            { id: "q47", q: "What is the capital of Japan?", a: ["Seoul", "Beijing", "Tokyo", "Bangkok"], c: "Tokyo" },
+            { id: "q48", q: "Which continent is the Sahara Desert on?", a: ["Asia", "Africa", "South America", "Australia"], c: "Africa" },
+            { id: "q49", q: "What is the largest state in the USA by area?", a: ["Texas", "California", "Montana", "Alaska"], c: "Alaska" },
+            { id: "q50", q: "Which ocean is on the East Coast of the United States?", a: ["Pacific", "Atlantic", "Indian", "Arctic"], c: "Atlantic" },
+            { id: "q51", q: "What country is north of the United States?", a: ["Mexico", "Greenland", "Canada", "Russia"], c: "Canada" },
+            { id: "q52", q: "In what country would you find the Great Pyramid of Giza?", a: ["Greece", "Italy", "Egypt", "Peru"], c: "Egypt" },
+            { id: "q53", q: "What is the smallest continent by land area?", a: ["Europe", "Antarctica", "Australia", "South America"], c: "Australia" },
+            { id: "q54", q: "What country is shaped like a boot?", a: ["Greece", "Italy", "Spain", "Florida"], c: "Italy" },
+            { id: "q55", q: "What is the capital of England?", a: ["Paris", "Dublin", "Edinburgh", "London"], c: "London" },
+            { id: "q56", q: "The Great Wall is located in which country?", a: ["Japan", "China", "Mongolia", "Korea"], c: "China" },
+            { id: "q57", q: "Which state is known as the Sunshine State?", a: ["California", "Texas", "Florida", "Hawaii"], c: "Florida" },
+            { id: "q58", q: "What mountain range runs down the western USA?", a: ["Appalachians", "Rockies", "Andes", "Alps"], c: "Rockies" },
+            { id: "q59", q: "What is the capital of Utah?", a: ["Provo", "Orem", "Salt Lake City", "St. George"], c: "Salt Lake City" },
+            { id: "q60", q: "Which country is home to kangaroos and koalas?", a: ["New Zealand", "South Africa", "Australia", "Brazil"], c: "Australia" },
+
+            // History & General
+            { id: "q61", q: "Who was the first President of the United States?", a: ["Abraham Lincoln", "Thomas Jefferson", "George Washington", "John Adams"], c: "George Washington" },
+            { id: "q62", q: "In what year did the United States declare independence?", a: ["1776", "1492", "1812", "1865"], c: "1776" },
+            { id: "q63", q: "Who invented the lightbulb?", a: ["Nikola Tesla", "Thomas Edison", "Albert Einstein", "Alexander Graham Bell"], c: "Thomas Edison" },
+            { id: "q64", q: "What ancient civilization built the Colosseum?", a: ["Greeks", "Egyptians", "Romans", "Mayans"], c: "Romans" },
+            { id: "q65", q: "Who painted the Mona Lisa?", a: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Claude Monet"], c: "Leonardo da Vinci" },
+            { id: "q66", q: "What ship sank on its maiden voyage in 1912?", a: ["Mayflower", "Titanic", "Santa Maria", "Lusitania"], c: "Titanic" },
+            { id: "q67", q: "Who was the first man to walk on the moon?", a: ["Buzz Aldrin", "Yuri Gagarin", "Neil Armstrong", "John Glenn"], c: "Neil Armstrong" },
+            { id: "q68", q: "What were the pyramids primarily built for?", a: ["Palaces", "Temples", "Tombs", "Fortresses"], c: "Tombs" },
+            { id: "q69", q: "Which US President is on the penny?", a: ["George Washington", "Abraham Lincoln", "Thomas Jefferson", "Franklin D. Roosevelt"], c: "Abraham Lincoln" },
+            { id: "q70", q: "What colors are on the flag of the United States?", a: ["Red, White, Green", "Red, White, Blue", "Blue, Yellow, White", "Red, Black, White"], c: "Red, White, Blue" },
+            { id: "q71", q: "How many stripes are on the US flag?", a: ["10", "11", "12", "13"], c: "13" },
+            { id: "q72", q: "What historic event began in 1939 and ended in 1945?", a: ["WWI", "WWII", "Civil War", "Vietnam War"], c: "WWII" },
+            { id: "q73", q: "Who wrote the play Romeo and Juliet?", a: ["Charles Dickens", "William Shakespeare", "Mark Twain", "J.K. Rowling"], c: "William Shakespeare" },
+            { id: "q74", q: "What was the name of the ship that brought the Pilgrims to America?", a: ["Nina", "Pinta", "Titanic", "Mayflower"], c: "Mayflower" },
+            { id: "q75", q: "Which ancient warrior civilization was from Sparta?", a: ["Romans", "Greeks", "Persians", "Egyptians"], c: "Greeks" },
+            { id: "q76", q: "What is the national bird of the United States?", a: ["Hawk", "Eagle", "Falcon", "Owl"], c: "Eagle" },
+            { id: "q77", q: "Which famous document begins 'We the People'?", a: ["Declaration of Independence", "Magna Carta", "The Constitution", "Bill of Rights"], c: "The Constitution" },
+            { id: "q78", q: "What flying pioneer disappeared over the Pacific Ocean?", a: ["Amelia Earhart", "Charles Lindbergh", "Wright Brothers", "Bessie Coleman"], c: "Amelia Earhart" },
+            { id: "q79", q: "What ancient civilization was known for mummies?", a: ["Romans", "Aztecs", "Egyptians", "Incas"], c: "Egyptians" },
+            { id: "q80", q: "How many stars are on the current US flag?", a: ["48", "49", "50", "51"], c: "50" },
+
+            // Pop Culture (Anime, Nintendo, Music)
+            { id: "q81", q: "What is the name of Goku's signature blue energy attack?", a: ["Special Beam Cannon", "Final Flash", "Spirit Bomb", "Kamehameha"], c: "Kamehameha" },
+            { id: "q82", q: "Which Pokémon is #001 in the Pokédex?", a: ["Pikachu", "Bulbasaur", "Charmander", "Squirtle"], c: "Bulbasaur" },
+            { id: "q83", q: "What is the name of Link's legendary sword?", a: ["Master Sword", "Excalibur", "Buster Sword", "Keyblade"], c: "Master Sword" },
+            { id: "q84", q: "What hidden village does Naruto belong to?", a: ["Sand", "Cloud", "Leaf", "Mist"], c: "Leaf" },
+            { id: "q85", q: "In Super Mario, what item makes Mario grow bigger?", a: ["Fire Flower", "Super Mushroom", "Star", "Green Shell"], c: "Super Mushroom" },
+            { id: "q86", q: "What color is a shiny Charizard?", a: ["Red", "Blue", "Black", "Gold"], c: "Black" },
+            { id: "q87", q: "Who is the main villain in The Legend of Zelda?", a: ["Bowser", "Ganondorf", "Sephiroth", "Ridley"], c: "Ganondorf" },
+            { id: "q88", q: "What is the name of Vegeta's son?", a: ["Gohan", "Goten", "Trunks", "Piccolo"], c: "Trunks" },
+            { id: "q89", q: "Which Nintendo character is known for inhaling enemies?", a: ["Yoshi", "Kirby", "Donkey Kong", "Wario"], c: "Kirby" },
+            { id: "q90", q: "What is the highest Super Saiyan level Goku reaches in DBZ?", a: ["SSJ2", "SSJ3", "SSJ4", "Ultra Instinct"], c: "SSJ3" },
+            { id: "q91", q: "Who is Mario's taller brother?", a: ["Waluigi", "Toad", "Bowser", "Luigi"], c: "Luigi" },
+            { id: "q92", q: "What pop-punk band wrote the hit song 'All the Small Things'?", a: ["Green Day", "Blink-182", "Sum 41", "Fall Out Boy"], c: "Blink-182" },
+            { id: "q93", q: "What type of animal is Donkey Kong?", a: ["Monkey", "Gorilla", "Chimpanzee", "Orangutan"], c: "Gorilla" },
+            { id: "q94", q: "In Naruto, what beast is sealed inside him?", a: ["One-Tail", "Eight-Tails", "Nine-Tails", "Ten-Tails"], c: "Nine-Tails" },
+            { id: "q95", q: "What is the name of Ash's first Pokémon?", a: ["Bulbasaur", "Squirtle", "Charmander", "Pikachu"], c: "Pikachu" },
+            { id: "q96", q: "Who is the protagonist of My Hero Academia?", a: ["Bakugo", "Todoroki", "Deku", "All Might"], c: "Deku" },
+            { id: "q97", q: "What princess does Mario constantly have to rescue?", a: ["Zelda", "Peach", "Daisy", "Rosalina"], c: "Peach" },
+            { id: "q98", q: "What is the pirate crew led by Monkey D. Luffy called?", a: ["Red Hair Pirates", "Whitebeard Pirates", "Straw Hat Pirates", "Blackbeard Pirates"], c: "Straw Hat Pirates" },
+            { id: "q99", q: "Which character is an alien from the planet Namek?", a: ["Goku", "Vegeta", "Piccolo", "Frieza"], c: "Piccolo" },
+            { id: "q100", q: "In Super Smash Bros, what item smashes opponents off the screen?", a: ["Poke Ball", "Smash Ball", "Home-Run Bat", "Bob-omb"], c: "Home-Run Bat" }
         ];
 
         window.sync = async () => {
             const e = document.getElementById('email').value; const p = document.getElementById('password').value;
             try {
                 await signInWithEmailAndPassword(auth, e, p);
+                document.getElementById('status').innerText = "Uploading Cards...";
                 for(const c of cards) { await setDoc(doc(db, "cards", c.id), c); }
+                document.getElementById('status').innerText = "Uploading Questions...";
                 for(const q of questions) { await setDoc(doc(db, "questions", q.id), q); }
-                document.getElementById('status').innerText = "✅ ALL DATA SYNCED!";
-            } catch(err) { document.getElementById('status').innerText = "❌ ERROR: " + err.message; }
+                document.getElementById('status').innerText = "✅ ALL 78 CARDS & 100 QUESTIONS SYNCED!";
+                document.getElementById('status').style.color = "#00ff00";
+            } catch(err) { 
+                document.getElementById('status').innerText = "❌ ERROR: " + err.message; 
+                document.getElementById('status').style.color = "red";
+            }
         };
     </script>
 </body>
