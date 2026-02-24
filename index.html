@@ -35,10 +35,11 @@
         .card-img { width: 100%; height: 70%; object-fit: contain; border-radius: 10px; }
         .rarity-label { font-size: 14px; font-weight: 900; background: #100b20; color: white; padding: 4px 12px; border-radius: 12px; margin-top: 10px; }
 
-        .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding: 20px; }
-        .inv-card { background: white; border-radius: 15px; padding: 10px; color: #100b20; display: flex; flex-direction: column; align-items: center; transition: 0.2s; border: 3px solid #fff; }
+        .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; }
+        .inv-card { background: white; border-radius: 15px; padding: 12px; color: #100b20; display: flex; flex-direction: column; align-items: center; transition: 0.2s; border: 3px solid #fff; }
         .inv-card:hover { transform: translateY(-5px); }
         .inv-card img { width: 100%; height: 90px; object-fit: contain; }
+        .card-btn { font-size:11px; font-weight:bold; padding:6px; cursor:pointer; border-radius:6px; width:100%; transition:0.2s; margin-top: 5px; border: 2px solid; }
 
         #auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 300; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: white; color: #100b20; padding: 40px; border-radius: 20px; width: 340px; text-align: center; }
@@ -138,8 +139,7 @@
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playNote(freq, type, duration) {
             if(audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
@@ -151,7 +151,8 @@
             wrong: () => { playNote(220, 'sawtooth', 0.1); setTimeout(() => playNote(110, 'sawtooth', 0.3), 100); },
             pack: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playNote(f, 'square', 0.2), i * 100)); },
             click: () => playNote(440, 'sine', 0.05),
-            equip: () => { playNote(659, 'sine', 0.1); setTimeout(() => playNote(880, 'sine', 0.2), 100); }
+            equip: () => { playNote(659, 'sine', 0.1); setTimeout(() => playNote(880, 'sine', 0.2), 100); },
+            sell: () => { playNote(880, 'square', 0.1); setTimeout(() => playNote(1760, 'square', 0.1), 100); }
         };
 
         window.handleAuth = async (type) => {
@@ -187,7 +188,9 @@
                 let tier = roll < 70 ? 1 : (roll < 95 ? 2 : 3);
                 let pool = packPool.filter(c => c.rarity === tier);
                 if (!pool.length) pool = packPool;
-                const pull = pool[Math.floor(Math.random() * pool.length)];
+                
+                // Add Unique ID to allow selling without deleting duplicates
+                const pull = { ...pool[Math.floor(Math.random() * pool.length)], instanceId: Date.now() + Math.random() };
                 
                 if(!userData.inventory) userData.inventory = [];
                 userData.inventory.push(pull);
@@ -206,11 +209,19 @@
         window.flipCard = () => { document.getElementById('card-inner').classList.add('is-flipped'); document.getElementById('collect-btn').classList.remove('hidden'); playNote(880, 'sine', 0.2); };
         window.closeReveal = () => { document.getElementById('reveal-overlay').style.display = "none"; sounds.click(); };
 
-        window.setAvatar = async (url) => {
-            userData.avatarUrl = url;
-            sounds.equip();
-            await saveToCloud();
-            window.updateUI();
+        window.setAvatar = async (url) => { userData.avatarUrl = url; sounds.equip(); await saveToCloud(); window.updateUI(); };
+
+        window.sellCard = async (instanceId, rarity) => {
+            const sellValues = [0, 10, 30, 50]; // Common=10, Rare=30, Ultra Rare=50
+            const value = sellValues[rarity] || 10;
+            
+            if(confirm(`Sell this card for ${value} 💰?`)) {
+                userData.inventory = userData.inventory.filter(c => c.instanceId !== instanceId);
+                userData.tokens += value;
+                sounds.sell();
+                await saveToCloud();
+                window.updateUI();
+            }
         };
 
         async function saveToCloud() {
@@ -219,10 +230,7 @@
 
         window.updateUI = () => {
             document.getElementById('tokenCount').innerText = userData.tokens;
-            
-            if(userData.avatarUrl) {
-                document.getElementById('profile-avatar').src = userData.avatarUrl;
-            }
+            if(userData.avatarUrl) document.getElementById('profile-avatar').src = userData.avatarUrl;
 
             const sortType = document.getElementById('sort-filter') ? document.getElementById('sort-filter').value : 'newest';
             let sortedInv = [...(userData.inventory || [])];
@@ -234,17 +242,19 @@
 
             const rLabels = ["", "COMMON", "RARE", "ULTRA RARE"];
             const rColors = ["", "#00d4ff", "#ffd700", "#ff007f"];
+            const sellValues = [0, 10, 30, 50];
 
-            const invList = document.getElementById('inv-list');
-            invList.innerHTML = sortedInv.map(card => {
+            document.getElementById('inv-list').innerHTML = sortedInv.map(card => {
                 const cColor = rColors[card.rarity] || '#fff';
                 const cLabel = rLabels[card.rarity] || 'UNKNOWN';
+                const sValue = sellValues[card.rarity] || 10;
                 return `
                 <div class="inv-card" style="border-color: ${cColor}; box-shadow: 4px 4px 0px ${cColor};">
                     <img src="${card.imageUrl}">
-                    <p style="margin:8px 0 0 0; font-size:15px; font-weight:900;">${card.name}</p>
+                    <p style="margin:8px 0 0 0; font-size:15px; font-weight:900; text-align:center;">${card.name}</p>
                     <span style="font-size:12px; color:${cColor}; font-weight:900; margin-top:4px; margin-bottom:8px;">${cLabel}</span>
-                    <button onclick="setAvatar('${card.imageUrl}')" style="font-size:11px; font-weight:bold; padding:6px 10px; cursor:pointer; background:#100b20; color:${cColor}; border:2px solid ${cColor}; border-radius:6px; width:100%; transition:0.2s;">Use as Avatar</button>
+                    <button class="card-btn" onclick="setAvatar('${card.imageUrl}')" style="background:#100b20; color:${cColor}; border-color:${cColor};">Set Avatar</button>
+                    <button class="card-btn" onclick="sellCard(${card.instanceId}, ${card.rarity})" style="background:#ff4757; color:white; border-color:#ff4757;">Sell (💰${sValue})</button>
                 </div>
                 `;
             }).join('');
@@ -274,7 +284,11 @@
                 const ds = await getDoc(doc(db, "users", user.uid));
                 if (ds.exists()) { 
                     userData = ds.data(); 
-                    if (!Array.isArray(userData.inventory)) userData.inventory = []; 
+                    if (!Array.isArray(userData.inventory)) userData.inventory = [];
+                    // Add IDs to old cards so they can be sold safely
+                    let updated = false;
+                    userData.inventory.forEach(c => { if(!c.instanceId) { c.instanceId = Date.now() + Math.random(); updated = true; } });
+                    if(updated) saveToCloud();
                     if (!userData.avatarUrl) userData.avatarUrl = ""; 
                 }
                 await fetchGameData(); window.updateUI();
