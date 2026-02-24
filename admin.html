@@ -6,7 +6,7 @@
     <div style="background:#222; padding:30px; border-radius:15px; display:inline-block;">
         <input type="email" id="email" placeholder="Admin Email" style="padding:10px; margin:5px;"><br>
         <input type="password" id="password" placeholder="Password" style="padding:10px; margin:5px;"><br>
-        <button onclick="sync()" style="padding:15px 30px; margin:20px; cursor:pointer; background:#00d4ff; font-weight:bold;">🚀 Push Stable Data</button>
+        <button onclick="sync()" style="padding:15px 30px; margin:20px; cursor:pointer; background:#00d4ff; font-weight:bold; border:none; border-radius:8px;">🚀 Sync Stable Data</button>
         <div id="status">Status: Waiting...</div>
     </div>
 
@@ -20,19 +20,19 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // STABLE IMAGE SOURCES
         const cards = [
-            { id: "goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/a/af/Son_Goku_YoungAdult.PNG" },
-            { id: "pikachu", name: "Pikachu", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png" },
+            { id: "goku", name: "Goku", packType: "Anime", rarity: 1, imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" }, // Placeholder for testing if block persists
+            { id: "naruto", name: "Naruto", packType: "Anime", rarity: 1, imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/9a/NarutoUzuzmaki.png" },
+            { id: "vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://upload.wikimedia.org/wikipedia/en/f/f6/Vegeta_Dragon_Ball.jpg" },
             { id: "mario", name: "Mario", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/s/super-mario-odyssey-switch/hero" },
-            { id: "vegeta", name: "Vegeta", packType: "Anime", rarity: 2, imageUrl: "https://static.wikia.nocookie.net/dragonball/images/c/cb/Goku_Super_Saiyan.png" }, // Stable Wikia
             { id: "kirby", name: "Kirby", packType: "Nintendo", rarity: 1, imageUrl: "https://assets.nintendo.com/image/upload/f_auto,q_auto,w_400/v1/ncom/en_US/games/switch/k/kirby-and-the-forgotten-land-switch/hero" }
         ];
 
         const questions = [
             { id: "math1", q: "What is 8 x 7?", a: ["54", "56", "64", "48"], c: "56" },
             { id: "math2", q: "What is 12 x 5?", a: ["50", "60", "70", "55"], c: "60" },
-            { id: "sci1", q: "Which planet is closest to the Sun?", a: ["Venus", "Mars", "Mercury", "Earth"], c: "Mercury" },
-            { id: "pop1", q: "What is the name of Goku's signature attack?", a: ["Final Flash", "Spirit Bomb", "Kamehameha", "Destructo Disc"], c: "Kamehameha" }
+            { id: "sci1", q: "Which planet is closest to the Sun?", a: ["Venus", "Mars", "Mercury", "Earth"], c: "Mercury" }
         ];
 
         window.sync = async () => {
